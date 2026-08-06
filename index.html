@@ -1,0 +1,124 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pay System - Secure Lightning Gateway</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+    
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-family: 'DM Sans', sans-serif;
+            overflow: hidden;
+        }
+
+        .hero-container {
+            max-width: 600px;
+            padding: 40px 20px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .logo-circle {
+            width: 80px;
+            height: 80px;
+            background: #00D632;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: 800;
+            margin: 0 auto 24px;
+            box-shadow: 0 0 30px rgba(0, 214, 50, 0.4);
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+
+        p {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 40px;
+            line-height: 1.5;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+
+        .btn-main {
+            background: #00D632;
+            color: #000;
+            border: none;
+            border-radius: 999px;
+            padding: 18px 24px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+
+        .btn-main:active {
+            transform: scale(0.96);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 999px;
+            padding: 18px 24px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .btn-secondary:active {
+            transform: scale(0.96);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hero-container">
+        <div class="logo-circle">$</div>
+        <h1>Receive Payments <br>Instantly.</h1>
+        <p>The fastest and most secure way to accept Bitcoin and Lightning payments directly to your wallet.</p>
+        
+        <div class="btn-group">
+            <a href="login.html" class="btn-main">Login to Dashboard</a>
+            <a href="register.html" class="btn-secondary">Create an Account</a>
+        </div>
+    </div>
+
+</body>
+</html>
