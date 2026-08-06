@@ -1,11 +1,1 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
-
-version: 2
-updates:
-  - package-ecosystem: "" # See documentation for possible values
-    directory: "/" # Location of package manifests
-    schedule:
-      interval: "weekly"
+{"spdxVersion":"SPDX-2.3","dataLicense":"CC0-1.0","SPDXID":"SPDXRef-DOCUMENT","name":"com.github.parvezmosharafvu/cashapp","documentNamespace":"https://spdx.org/spdxdocs/protobom/f400c6da-21ad-4d04-b819-660ce2307801","creationInfo":{"creators":["Tool: protobom-v0.0.0-20260805105941-b1c320b6785d+dirty","Tool: GitHub.com-Dependency-Graph"],"created":"2026-08-06T18:29:41Z"},"packages":[{"name":"com.github.parvezmosharafvu/cashapp","SPDXID":"SPDXRef-github-parvezmosharafvu-cashapp-main-b91974","versionInfo":"main","downloadLocation":"git+https://github.com/parvezmosharafvu/cashapp","filesAnalyzed":false,"externalRefs":[{"referenceCategory":"PACKAGE-MANAGER","referenceType":"purl","referenceLocator":"pkg:github/parvezmosharafvu/cashapp@main"}]}],"relationships":[{"spdxElementId":"SPDXRef-DOCUMENT","relatedSpdxElement":"SPDXRef-github-parvezmosharafvu-cashapp-main-b91974","relationshipType":"DESCRIBES"}]}
