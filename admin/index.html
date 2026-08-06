@@ -56,9 +56,11 @@ body { font-family:'DM Sans',sans-serif; background:#000; color:#fff; min-height
 .btn-profit { background:rgba(0,214,50,0.15); color:#00D632; border:1px solid rgba(0,214,50,0.4); padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer; text-transform:uppercase; transition:all 0.2s; box-shadow: 0 4px 10px rgba(0,214,50,0.1); }
 .btn-profit:hover { background:rgba(0,214,50,0.25); transform:translateY(-2px); }
 
-/* ══════ MODAL (CALCULATOR) ══════ */
+/* ══════ MODAL ══════ */
 .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(5px); display:none; align-items:center; justify-content:center; z-index:1000; padding:20px; }
-.modal-content { background:#0d0d0d; border:1px solid rgba(100,180,255,0.2); border-radius:24px; width:100%; max-width:420px; padding:24px; box-shadow:0 20px 80px rgba(0,0,0,0.9); }
+.modal-content { background:#0d0d0d; border:1px solid rgba(100,180,255,0.2); border-radius:24px; width:100%; max-width:420px; padding:24px; box-shadow:0 20px 80px rgba(0,0,0,0.9); max-height: 90vh; overflow-y: auto;}
+.modal-content::-webkit-scrollbar { width: 6px; }
+.modal-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
 .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
 .modal-title { font-size:18px; font-weight:800; color:#fff; }
 .modal-close { background:transparent; border:none; color:rgba(255,255,255,0.5); font-size:24px; cursor:pointer; }
@@ -178,10 +180,10 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; border-top:1px solid rgba(255,255,255,0.08); padding-top:12px;">
            <div>
-              <div class="stat-label" style="margin-bottom:2px; color:rgba(255,255,255,0.5);">All-Time Saved</div>
-              <div style="font-size:14px; font-weight:800; color:#64b4ff;" id="statLifetime">$0.00</div>
+              <div class="stat-label" style="margin-bottom:2px; color:rgba(255,255,255,0.5);">Lifetime Data</div>
+              <div style="font-size:11px; font-weight:600; color:#64b4ff;">Live Syncing...</div>
            </div>
-           <button class="btn-profit" style="padding:6px 14px; font-size:11px;" onclick="backupLifetime()">+ Backup</button>
+           <button class="btn-profit" style="padding:6px 14px; font-size:11px;" onclick="openLifetimeModal()">View Report</button>
         </div>
       </div>
 
@@ -281,6 +283,57 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
   </div>
 </div>
 
+<!-- ══════ LIFETIME MODAL ══════ -->
+<div class="modal-overlay" id="lifetimeModal">
+  <div class="modal-content" style="max-width:600px;">
+    <div class="modal-header">
+      <div class="modal-title">All-Time Lifetime Report</div>
+      <button class="modal-close" onclick="closeLifetimeModal()">×</button>
+    </div>
+    
+    <div id="lifetimeLoading" style="text-align:center; padding:40px; color:#64b4ff; font-weight:bold;">Generating Report...</div>
+    
+    <div id="lifetimeContent" style="display:none;">
+      <!-- Master Summary -->
+      <div class="stats-grid" style="grid-template-columns:repeat(2,1fr); margin-bottom: 20px;">
+        <div class="stat-card blue" style="padding:12px;">
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-val" id="ltTotalRev" style="font-size:20px;">$0.00</div>
+        </div>
+        <div class="stat-card" style="padding:12px;">
+          <div class="stat-label">Total Withdrawn</div>
+          <div class="stat-val" id="ltTotalWD" style="font-size:20px; color:#ff4d4d;">$0.00</div>
+        </div>
+        <div class="stat-card profit-bg" style="padding:12px;">
+          <div class="stat-label">Available Flow</div>
+          <div class="stat-val" id="ltAvail" style="font-size:20px; color:#00D632;">$0.00</div>
+        </div>
+        <div class="stat-card" style="padding:12px;">
+          <div class="stat-label">Total Invoices</div>
+          <div class="stat-val" id="ltInvoices" style="font-size:20px;">0</div>
+        </div>
+      </div>
+      
+      <!-- Model Breakdown Table -->
+      <div class="field-label" style="margin-bottom: 10px;">Model Breakdown (All-Time)</div>
+      <div class="table-wrap">
+        <table style="font-size: 12px;">
+          <thead>
+            <tr>
+              <th>Model Name</th>
+              <th style="color:#00D632">Earned</th>
+              <th style="color:#ff4d4d">Withdrawn</th>
+              <th style="color:#64b4ff">Balance</th>
+            </tr>
+          </thead>
+          <tbody id="ltModelBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ CALCULATOR MODAL ══════ -->
 <div class="modal-overlay" id="calcModal">
   <div class="modal-content">
     <div class="modal-header">
@@ -321,6 +374,7 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
 </div>
 
 <script>
+// 🟢 NEW SUPABASE CREDENTIALS 🟢
 const SUPABASE_URL = 'https://ohwzmxwsphsfzudmlins.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9od3pteHdzcGhzZnp1ZG1saW5zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMzE0MTksImV4cCI6MjEwMTYwNzQxOX0.frTl7qnDx7SK2IBMQxFCkKGe5u4XAQweRxPhQ-2r8rU';
 
@@ -411,7 +465,8 @@ if (sessionStorage.getItem('masterAuth') === 'true') {
 
 // 🟢 ALL DATA LOADS TOGETHER WITH DATABASE MATH 🟢
 async function loadData() {
-  await Promise.all([fetchPayments(), fetchWithdrawals(), fetchLifetimeTotal(), updateStats()]);
+  await Promise.all([fetchPayments(), fetchWithdrawals()]);
+  await updateStats();
   renderModelOverview();
   renderPayments();
   renderWithdrawals();
@@ -430,11 +485,18 @@ async function updateStats() {
     if(res.ok) {
       const data = await res.json();
       globalAvailable = parseFloat(data.available_balance || 0);
+      
+      // Calculate Total Admin Profit from Withdrawals list
+      const adminProfit = allWithdrawals
+          .filter(w => w.source === 'Master Admin' && w.status === 'completed')
+          .reduce((sum, w) => sum + parseFloat(w.amount), 0);
+
+      const pendingWdCount = allWithdrawals.filter(w => w.status === 'pending').length;
 
       document.getElementById('statSettled').textContent = '$' + parseFloat(data.total_settled || 0).toFixed(2);
-      document.getElementById('statProfit').textContent = '$' + parseFloat(data.total_profit_saved || 0).toFixed(2);
+      document.getElementById('statProfit').textContent = '$' + adminProfit.toFixed(2);
       document.getElementById('statAvailable').textContent = '$' + globalAvailable.toFixed(2);
-      document.getElementById('statPendingWD').textContent = data.pending_wd_count + ' requests';
+      document.getElementById('statPendingWD').textContent = pendingWdCount + ' requests';
     }
   } catch(e) { console.error("Stats Error:", e); }
 }
@@ -478,47 +540,51 @@ async function fetchWithdrawals() {
   } catch(e) { console.error(e); }
 }
 
-async function fetchLifetimeTotal() {
+// 🟢 NEW: LIFETIME STATS REPORT 🟢
+async function openLifetimeModal() {
+  document.getElementById('lifetimeModal').style.display = 'flex';
+  document.getElementById('lifetimeLoading').style.display = 'block';
+  document.getElementById('lifetimeContent').style.display = 'none';
+  
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_lifetime_total`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_lifetime_stats`, {
       method: 'POST',
       headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
     });
+    
     if(res.ok) {
-      const lifetime = await res.json();
-      document.getElementById('statLifetime').textContent = '$' + (parseFloat(lifetime) || 0).toFixed(2);
+      const data = await res.json();
+      
+      document.getElementById('ltTotalRev').textContent = '$' + data.master_stats.total_revenue_all_time.toFixed(2);
+      document.getElementById('ltTotalWD').textContent = '$' + (data.master_stats.total_withdrawn_completed + data.master_stats.total_withdrawn_pending).toFixed(2);
+      document.getElementById('ltAvail').textContent = '$' + data.master_stats.current_available_balance.toFixed(2);
+      document.getElementById('ltInvoices').textContent = data.master_stats.total_successful_invoices;
+      
+      const tbody = document.getElementById('ltModelBody');
+      if (data.model_breakdown && data.model_breakdown.length > 0) {
+        tbody.innerHTML = data.model_breakdown.map(m => `
+          <tr>
+            <td style="font-weight:bold;">${m.model_name === 'Master Admin' ? '⭐ Master Profit' : extractModelName(m.model_name).toUpperCase()}</td>
+            <td style="color:#00D632; font-weight:bold;">$${m.total_earned.toFixed(2)}</td>
+            <td style="color:#ff4d4d; font-weight:bold;">$${m.total_withdrawn.toFixed(2)}</td>
+            <td style="color:#64b4ff; font-weight:bold;">$${m.current_balance.toFixed(2)}</td>
+          </tr>
+        `).join('');
+      } else {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color:rgba(255,255,255,0.4);">No model data available yet</td></tr>';
+      }
+      
+      document.getElementById('lifetimeLoading').style.display = 'none';
+      document.getElementById('lifetimeContent').style.display = 'block';
     }
-  } catch(e) { console.error(e); }
-}
-
-async function backupLifetime() {
-  const settled = allPayments.filter(p => p.status === 'settled' || p.status === 'completed' || p.status === 'paid');
-  const currentTotal = settled.reduce((s,p) => s + parseFloat(p.amount || 0), 0);
-
-  if(currentTotal <= 0) return alert("You have $0.00 settled amount to backup right now!");
-  if(!confirm(`Do you want to add the current $${currentTotal.toFixed(2)} to your 'All-Time Saved' record?`)) return;
-
-  const btn = event.target; btn.disabled = true; btn.textContent = 'Saving...';
-
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/save_lifetime_total`, {
-      method: 'POST',
-      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ p_amount: currentTotal, p_pass: sessionStorage.getItem('masterPass') })
-    });
-
-    if(res.ok) {
-      alert("Successfully Added! Your All-Time history is updated.");
-      loadData();
-    } else {
-      const err = await res.json();
-      alert(`❌ Backup Failed!\nReason: ${err.message || err.details}`);
-    }
-  } catch(e) { 
-      alert("❌ Network Error!");
+  } catch (e) {
+    alert("Error fetching Lifetime Stats.");
+    closeLifetimeModal();
   }
-  btn.disabled = false; btn.textContent = '+ Backup';
 }
+
+function closeLifetimeModal() { document.getElementById('lifetimeModal').style.display = 'none'; }
+
 
 function renderModelOverview() {
   const stats = {};
