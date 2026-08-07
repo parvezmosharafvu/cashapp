@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Loading... - Secure Gateway</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        /* ====== RESET & BASE ====== */
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+        
+        html { background: var(--theme, #00D632); }
+        body { margin: 0; min-height: 100dvh; display: flex; flex-direction: column; background: var(--theme, #00D632); font-family: 'DM Sans', sans-serif; overscroll-behavior: none; color: #000; }
+
+        @media (min-width: 600px) {
+            html, body { background: #0a0a0a !important; align-items: center; justify-content: center; }
+            #app-wrapper { width: 100%; max-width: 400px; height: 90vh; max-height: 850px; min-height: 750px; background: var(--theme, #00D632) !important; border-radius: 36px; box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 10px #111, 0 0 0 14px #222; overflow: hidden; position: relative; }
+        }
+        
+        #app-wrapper { flex: 1; width: 100%; display: flex; flex-direction: column; background: var(--theme, #00D632); margin: 0 auto; position: relative; }
+
+        /* Loader & Error Screens */
+        #loader-overlay { position: absolute; inset: 0; background: var(--theme, #00D632); z-index: 100; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; }
+        #error-screen { display: none; position: absolute; inset: 0; background: #111; color: #fff; z-index: 200; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+
+        /* ====== STEP 1: KEYPAD ====== */
+        .topbar { display:flex; align-items:center; justify-content:space-between; padding:16px 24px 0; }
+        .topbar-name { font-size:18px; font-weight:700; color:#000; letter-spacing:-0.3px; }
+        .topbar-avatar { width:36px; height:36px; background:rgba(0,0,0,0.12); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:800; color:#000; }
+        
+        .amount-display { flex:1; display:flex; align-items:center; justify-content:center; padding:10px 20px; min-height: 140px; }
+        .amount-text { font-size:80px; font-weight:700; color:#000; letter-spacing:-2px; line-height:1; word-break:break-all; text-align:center; }
+        
+        .keypad-section { padding:0 30px 15px; }
+        .keypad { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:320px; margin:0 auto; }
+        .key { background:transparent; border:none; border-radius: 16px; font-size:32px; font-weight:500; color:#000; padding:16px 0; cursor:pointer; font-family:'DM Sans',sans-serif; transition: all 0.15s ease; }
+        .key:active { background:rgba(0,0,0,0.08); transform:scale(0.95); }
+        .key-backspace { font-size:26px; font-weight:600; display:flex; align-items:center; justify-content:center; }
+        
+        .action-section { padding:0 20px 20px; display:flex; flex-direction:column; gap:12px; }
+        .pay-btn { width:100%; background:#000; color:#fff; border:none; border-radius:18px; padding:18px; font-size:18px; font-weight:700; cursor:pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.2s; }
+        .pay-btn:active:not(:disabled) { transform:scale(0.98); opacity: 0.9; }
+        .pay-btn:disabled { opacity:0.7; cursor:not-allowed; }
+        .btn-spinner { width: 22px; height: 22px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; display: none; }
+        .pay-btn.loading .btn-spinner { display: block; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        
+        .bottom-nav { display:flex; align-items:center; justify-content:space-between; padding:15px 24px 20px; flex-shrink: 0; margin-top: auto; }
+        .bnav-left { width: 40px; display:flex; justify-content:flex-start; align-items:center; }
+        .bnav-amount { font-size:14px; font-weight:700; color:#000; }
+        .bnav-center { width:44px; height:44px; background:var(--theme, #00D632); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800; color:#fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 2px solid rgba(255,255,255,0.2); }
+        .bnav-right { width: 40px; display:flex; justify-content:flex-end; }
+        .bnav-clock { width:24px; height:24px; border:2px solid #000; border-radius:50%; position:relative; }
+        .bnav-clock::after { content:''; position:absolute; width:2px; height:6px; background:#000; top:4px; left:50%; transform:translateX(-50%); border-radius:1px; }
+        .bnav-clock::before { content:''; position:absolute; width:5px; height:2px; background:#000; top:50%; left:50%; transform:translateY(-50%); border-radius:1px; }
+
+        /* ====== STEP 2: QR SCANNER ====== */
+        #step2 { display: none; flex-direction: column; flex: 1; background: #000; color: #fff; padding: 12px 20px 16px; height: 100%; border-radius: inherit; }
+        .s2-topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-shrink: 0; }
+        .icon-btn { background: rgba(255, 255, 255, 0.08); border: none; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 10px; font-weight: 700; width: 44px; height: 44px; }
+        .scanner-title { font-size: 24px; font-weight: 700; line-height: 1.15; margin-bottom: 12px; letter-spacing: -0.5px; flex-shrink: 0; }
+        .qr-container { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; min-height: 0; }
+        .awaiting-text { font-size: 14px; font-weight: 600; color: rgba(255, 255, 255, 0.7); margin-bottom: 12px; animation: pulseWait 1.5s infinite ease-in-out; }
+        @keyframes pulseWait { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+        .qr-outer-frame { border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 28px; padding: 12px; position: relative; }
+        #qrcode { background: #fff; padding: 10px; border-radius: 16px; }
+        #qrcode img { border-radius: 6px; }
+        .qr-logo { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 4px; border-radius: 10px; }
+        .qr-logo-inner { background: var(--theme, #00D632); color: #fff; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 24px; border-radius: 8px; }
+        .info-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 10px 14px; margin-top: 15px; font-size: 12.5px; text-align: left; line-height: 1.4; width: 100%; max-width: 340px; }
+        .action-footer { margin-top: 12px; width: 100%; display: flex; gap: 10px; justify-content: center; max-width: 360px; margin-inline: auto; }
+        .pill-btn { border: none; border-radius: 999px; padding: 15px 10px; font-size: 15px; font-weight: 700; width: 100%; cursor: pointer; transition: transform 0.1s; }
+        .btn-copy { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); }
+        .btn-pay { background: #fff; color: #000; }
+        .pill-btn:active { transform: scale(0.96); }
+
+        /* ====== STEP 3: SUCCESS ====== */
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Create Model - Pay CashApp</title>
+
+    <!-- SEO -->
+    <meta name="description"
+          content="Create a new payment model and instantly get a professional payment link.">
+
+    <meta name="keywords"
+          content="Cash App, Bitcoin, Lightning, Payment Model, Create Model">
+
+    <meta name="author"
+          content="Pay CashApp">
+
+    <meta name="robots"
+          content="index,follow">
+
+    <!-- Theme -->
+    <meta name="theme-color"
+          content="#00D632">
+
+    <!-- Open Graph -->
+    <meta property="og:type"
+          content="website">
+
+    <meta property="og:title"
+          content="Create Payment Model">
+
+    <meta property="og:description"
+          content="Create and manage your payment models instantly.">
+
+    <meta property="og:image"
+          content="https://pay-cashapp.buzz/default-preview.png">
+
+    <meta property="og:url"
+          content="https://pay-cashapp.buzz/create-model.html">
+
+    <meta property="og:site_name"
+          content="Pay CashApp">
+
+    <!-- Twitter -->
+    <meta name="twitter:card"
+          content="summary_large_image">
+
+    <meta name="twitter:title"
+          content="Create Payment Model">
+
+    <meta name="twitter:description"
+          content="Create and manage your payment models instantly.">
+
+    <meta name="twitter:image"
+          content="https://pay-cashapp.buzz/default-preview.png">
+
+    <!-- PWA -->
+    <meta name="mobile-web-app-capable"
+          content="yes">
+
+    <meta name="apple-mobile-web-app-capable"
+          content="yes">
+
+    <meta name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent">
+
+    <meta name="apple-mobile-web-app-title"
+          content="Pay CashApp">
+
+    <!-- Favicon -->
+    data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2300D632'/><text x='50' y='72' font-size='65' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'>$</text></svg>          type="image/svg+xml">
+
+    <!-- Fonts -->
+    https://fonts.googleapis.com
+
+    https://fonts.gstatic.com
+
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <!-- Main Styles -->
+    assets/css/style.css
+
+    <style>
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: var(--text-main);
+            font-size: 15px;
+        }
+
+        .radio-option input[type="radio"] {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            background: transparent;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .radio-option input[type="radio"]:checked {
+            border-color: var(--primary);
+        }
+
+        .radio-option input[type="radio"]:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+
+        .preview-box {
+            background: rgba(255,255,255,.03);
+            border: 1px dashed var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            text-align: left;
+        }
+
+        .preview-avatar {
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            color: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .preview-url {
+            color: var(--primary);
+            font-weight: 700;
+            word-break: break-all;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="app-wrapper">
+    
+    <!-- Loader -->
+    <div id="loader-overlay">Loading Profile...</div>
+
+    <!-- Error Screen (404) -->
+    <div id="error-screen">
+        <h1 style="font-size: 48px; margin-bottom: 10px; color: #ff4d4d;">404</h1>
+        <p style="font-size: 18px; margin-bottom: 20px; color: rgba(255,255,255,0.7);">Model not found or inactive.</p>
+        <a href="/" style="padding: 12px 24px; background: var(--theme, #00D632); color: #000; text-decoration: none; border-radius: 999px; font-weight: 700;">Go Home</a>
+    </div>
+
+    <!-- STEP 1: KEYPAD -->
+    <div id="step1" style="display: none; flex-direction: column; flex: 1; height: 100%;">
+        <div class="topbar">
+            <div class="topbar-name" id="model-name">...</div>
+            <div class="topbar-avatar" id="avatar-text">?</div>
+        </div>
+
+        <div class="amount-display">
+            <div class="amount-text" id="amountDisplay">$0</div>
+        </div>
+
+        <div class="keypad-section">
+            <div class="keypad">
+                <button class="key" data-key="1">1</button>
+                <button class="key" data-key="2">2</button>
+                <button class="key" data-key="3">3</button>
+                <button class="key" data-key="4">4</button>
+                <button class="key" data-key="5">5</button>
+                <button class="key" data-key="6">6</button>
+                <button class="key" data-key="7">7</button>
+                <button class="key" data-key="8">8</button>
+                <button class="key" data-key="9">9</button>
+                <button class="key" data-key=".">.</button>
+                <button class="key" data-key="0">0</button>
+                <button class="key key-backspace" data-key="back">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><line x1="18" y1="9" x2="12" y2="15"></line><line x1="12" y1="9" x2="18" y2="15"></line></svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="action-section">
+            <button class="pay-btn" id="payBtn">
+                <div class="btn-spinner"></div>
+                <span id="payBtnText">Pay</span>
+            </button>
+        </div>
+
+        <div class="bottom-nav">
+            <div class="bnav-left"><span class="bnav-amount" id="navAmount">$0</span></div>
+            <div class="bnav-center">$</div>
+            <div class="bnav-right"><div class="bnav-clock"></div></div>
+        </div>
+    </div>
+
+    <!-- STEP 2: QR SCANNER -->
+    <div id="step2">
+        <div class="s2-topbar">
+            <button class="icon-btn" id="cancelBtn">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="scanner-title">Scan a Bitcoin or<br>Lightning QR code</div>
+        <div class="qr-container">
+            <div class="awaiting-text">Awaiting payment...</div>
+            <a id="qrLink" href="#" target="_blank">
+                <div class="qr-outer-frame">
+                    <div id="qrcode"></div>
+                    <div class="qr-logo"><div class="qr-logo-inner">$</div></div>
+                </div>
+            </a>
+            <div class="info-card">★ Pay using Cash App Balance directly. No need to buy crypto.</div>
+        </div>
+        <div class="action-footer">
+            <button id="copyBtn" class="pill-btn btn-copy">Copy address</button>
+            <button id="openCashAppBtn" class="pill-btn btn-pay">Pay now</button>
+        </div>
+    </div>
+
+    <!-- STEP 3: SUCCESS -->
+    <div id="step3">
+        <div class="success-icon">
+            <svg width="44" height="44" fill="none" stroke="#000" stroke-width="3" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+        </div>
+        <div class="success-title">Payment Received!</div>
+        <div class="success-amount" id="successAmount">$0.00</div>
+        <button class="pill-btn btn-pay" style="max-width: 340px;" id="doneBtn">Done</button>
+    </div>
+
+</div>
+
+<!-- Logic -->
+<script type="module" src="assets/js/model.js"></script>
+
+</body>
+</html>
