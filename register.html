@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Register - Secure Gateway</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="auth-box">
+            <h2>Create Account</h2>
+            <form id="register-form">
+                <div class="input-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" placeholder="Enter your email" required autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Min. 6 characters" required minlength="6">
+                </div>
+                <button type="submit" class="btn mt-4" id="register-btn">Sign Up</button>
+            </form>
+            
+            <div id="msg" class="msg"></div>
+            
+            <p class="mt-4" style="font-size: 14px; color: var(--text-muted);">
+                Already have an account? <a href="login.html">Login here</a>
+            </p>
+        </div>
+    </div>
+
+    <script type="module" src="assets/js/auth.js"></script>
+</body>
+</html>
