@@ -1,7 +1,6 @@
 // assets/js/dashboard.js
 import { supabase } from './config.js';
 
-// ১. Session Check & Profile Load
 const { data: { session } } = await supabase.auth.getSession();
 
 if (!session) {
@@ -14,16 +13,13 @@ const { data: profile } = await supabase
     .eq('id', session.user.id)
     .single();
 
-// Update UI with user info
 document.getElementById('userEmail').textContent = session.user.email;
 document.getElementById('userRole').textContent = profile?.role || 'member';
 
-// ২. Load User's Models
 async function loadModels() {
     const modelsList = document.getElementById('models-list');
     modelsList.innerHTML = '<p style="color: var(--text-muted);">Loading your models...</p>';
 
-    // ডাটাবেস থেকে শুধু এই ইউজারের মডেলগুলো আনবে
     const { data: models, error } = await supabase
         .from('models')
         .select('*')
@@ -36,7 +32,6 @@ async function loadModels() {
         return;
     }
 
-    // যদি কোনো মডেল না থাকে
     if (!models || models.length === 0) {
         modelsList.innerHTML = `
             <div style="text-align: center; padding: 40px 0; background: rgba(255,255,255,0.02); border-radius: 16px; border: 1px dashed var(--border);">
@@ -47,7 +42,9 @@ async function loadModels() {
         return;
     }
 
-    // মডেল থাকলে কার্ড আকারে রেন্ডার করবে
+    // Fix 4: Dynamic Domain Setup
+    const domain = window.location.origin;
+
     modelsList.innerHTML = models.map(m => `
         <div style="background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; align-items: center; gap: 16px;">
@@ -56,7 +53,7 @@ async function loadModels() {
                 </div>
                 <div>
                     <h3 style="margin-bottom: 4px; font-size: 18px;">${m.model_name}</h3>
-                    <a href="/${m.slug}" target="_blank" style="font-size: 14px; opacity: 0.8;">pay-cashapp.buzz/${m.slug}</a>
+                    <a href="${domain}/${m.slug}" target="_blank" style="font-size: 14px; opacity: 0.8;">${domain}/${m.slug}</a>
                 </div>
             </div>
             <div style="text-align: right;">
@@ -69,7 +66,6 @@ async function loadModels() {
 
 loadModels();
 
-// ৩. Logout Logic
 document.getElementById('logout-btn').addEventListener('click', async () => {
     await supabase.auth.signOut();
     window.location.href = 'login.html';
