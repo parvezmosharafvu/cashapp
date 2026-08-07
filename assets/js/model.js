@@ -326,21 +326,24 @@ payBtn.addEventListener(
             }
 
             currentPayCode =
-                data.lightningCode
-                || data.btcAddress
-                || '';
+    data.lightningCode ||
+    data.btcAddress;
 
-            if (
-                currentPayCode
-                    .toLowerCase()
-                    .startsWith(
-                        'lightning:'
-                    )
-            ) {
+if (!currentPayCode) {
+    throw new Error(
+        'No payment code returned'
+    );
+}
 
-                currentPayCode =
-                    currentPayCode.slice(10);
-            }
+if (
+    currentPayCode
+      .toLowerCase()
+      .startsWith('lightning:')
+) {
+    currentPayCode =
+        currentPayCode.slice(10);
+}
+
 
             const cashAppUrl =
                 `https://cash.app/launch/lightning/${currentPayCode}`;
