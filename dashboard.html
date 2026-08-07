@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dashboard - Secure Gateway</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        
+        <!-- Header / Navbar -->
+        <header style="display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--border); margin-bottom: 40px;">
+            <div>
+                <h2 style="font-size: 24px; margin-bottom: 4px;">Dashboard</h2>
+                <p style="font-size: 14px; color: var(--text-muted);">
+                    User: <span id="userEmail" style="color: var(--primary); font-weight: 500;">Loading...</span> 
+                    <span style="opacity: 0.5;">(<span id="userRole">...</span>)</span>
+                </p>
+            </div>
+            <button id="logout-btn" class="btn btn-outline" style="width: auto; padding: 8px 20px; border-radius: 8px;">Logout</button>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h3 style="font-size: 20px;">My Models</h3>
+                <a href="create-model.html" class="btn" style="width: auto; padding: 10px 20px; border-radius: 8px;">+ Create New</a>
+            </div>
+
+            <!-- This div will be populated by dashboard.js -->
+            <div id="models-list"></div>
+        </main>
+
+    </div>
+
+    <!-- Script loaded as module -->
+    <script type="module" src="assets/js/dashboard.js"></script>
+</body>
+</html>
