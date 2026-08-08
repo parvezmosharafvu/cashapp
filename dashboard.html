@@ -3,38 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dashboard - Secure Gateway</title>
+    <title>Creator Dashboard</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div class="container">
-        
-        <!-- Header / Navbar -->
-        <header style="display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--border); margin-bottom: 40px;">
-            <div>
-                <h2 style="font-size: 24px; margin-bottom: 4px;">Dashboard</h2>
-                <p style="font-size: 14px; color: var(--text-muted);">
-                    User: <span id="userEmail" style="color: var(--primary); font-weight: 500;">Loading...</span> 
-                    <span style="opacity: 0.5;">(<span id="userRole">...</span>)</span>
-                </p>
-            </div>
-            <button id="logout-btn" class="btn btn-outline" style="width: auto; padding: 8px 20px; border-radius: 8px;">Logout</button>
-        </header>
 
-        <!-- Main Content -->
-        <main>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                <h3 style="font-size: 20px;">My Models</h3>
-                <a href="create-model.html" class="btn" style="width: auto; padding: 10px 20px; border-radius: 8px;">+ Create New</a>
-            </div>
+    <!-- Top App Bar -->
+    <header class="top-bar">
+        <h1 id="page-title">Dashboard</h1>
+        <div class="user-info">
+            <span id="user-email-display" class="text-xs text-muted">Loading...</span>
+        </div>
+    </header>
 
-            <!-- This div will be populated by dashboard.js -->
-            <div id="models-list"></div>
-        </main>
-
+    <!-- Global Notice Banner (Controlled by Admin) -->
+    <div id="notice-banner" class="notice-banner" style="display: none;">
+        <i class="fa-solid fa-bullhorn"></i> <span id="notice-text"></span>
     </div>
 
-    <!-- Script loaded as module -->
-    <script type="module" src="assets/js/dashboard.js"></script>
+    <!-- Main Content Area -->
+    <main class="content-area">
+        
+        <!-- ========================================== -->
+        <!-- 1. DASHBOARD TAB -->
+        <!-- ========================================== -->
+        <section id="dashboard" class="tab-content active">
+            
+            <!-- Balance Card -->
+            <div class="card balance-card">
+                <p class="text-sm opacity-80 uppercase tracking-wide">Available Balance</p>
+                <h2 id="display-balance" class="balance-amount">$0.00</h2>
+                <p class="text-xs opacity-90 mt-1">Today rate (per USD): <strong id="display-exchange-rate">118 TK</strong></p>
+                
+                <div class="balance-stats">
+                    <div class="stat-item">
+                        <span class="text-xs opacity-80">Pending</span>
+                        <div id="display-pending" class="text-sm font-bold">$0.00</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="text-xs opacity-80">Total Paid</span>
+                        <div id="display-paid" class="text-sm font-bold">$0.00</div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="text-xs opacity-80">Withdrawn</span>
+                        <div id="display-withdrawn" class="text-sm font-bold">$0.00</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Public Pay Links Card -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="label">PUBLIC PAY LINKS</span>
+                    <div class="domain-selector">
+                        <span class="label">DOMAIN</span>
+                        <select id="domain-select" class="custom-select">
+                            <option value="pay-cash.app">pay-cash.app</option>
+                            <option value="onecox.org" selected>onecox.org</option>
+                            <option value="cash2pay.app">cash2pay.app</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="link-list">
+                    <div class="link-item bg-light p-3 rounded">
+                        <span class="link-text text-green font-mono" id="primary-pay-link">Loading link...</span>
+                        <button class="icon-btn text-green" onclick="copyPayLink()" title="Copy Link">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card-actions mt-4">
+                    <button class="btn btn-primary" onclick="switchTab('withdrawals')">Request withdrawal</button>
+                    <button class="btn btn-outline" onclick="switchTab('payments')">All transactions</button>
+                </div>
+            </div>
+
+            <!-- Recent Payments Card -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="label">RECENT PAYMENTS</span>
+                </div>
+                <div id="recent-payments-list" class="transaction-list">
+                    <!-- Skeleton Loader -->
+                    <div class="skeleton-row"></div>
+                    <div class="skeleton-row"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- 2. PAYMENTS TAB -->
+        <!-- ========================================== -->
+        <section id="payments" class="tab-content">
+            <div class="card">
+                <h3 class="card-title mb-3">All Payments</h3>
+                <div id="all-payments-list" class="transaction-list">
+                    <p class="text-muted text-sm py-2">Loading payments history...</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- ========================================== -->
+        <!-- 3. WITHDRAWALS TAB -->
+        <!-- ========================================== -->
+        <section id="withdrawals" class="tab-content">
+            <div class="card">
+                <h3 class="card-title text-center mb-4">Request withdrawal</h3>
+                <div class="bg-light p-3 rounded mb-4 text-center">
+                    <span class="text-sm text-muted">Available balance: </span>
+                    <strong class="text-xl" id="withdraw-available-balance">$0.00</strong>
+                </div>
+
+                <form id="withdrawal-form">
+                    <div class="input-wrapper mb-3">
+                        <label class="label mb-1 block">Amount (USD)</label>
+                        <div class="input-group">
+                            <span class="input-prefix">$</span>
+                            <input type="number" id="withdraw-amount" class="input-field" placeholder="0.00" min="1" step="0.01" required>
+                        </div>
+                        <p class="text-xs text-muted mt-1">Between $1 and maximum available balance. Finalized upon submit.</p>
+                    </div>
+
+                    <div class="input-wrapper mb-3">
+                        <label class="label mb-1 block">Payout method</label>
+                        <input type="text" id="withdraw-method" class="form-input" placeholder="e.g. Bank transfer, bKash, Nagad" required>
+                    </div>
+
+                    <div class="input-wrapper mb-3">
+                        <label class="label mb-1 block">Payout details</label>
+                        <textarea id="withdraw-details" class="form-textarea" placeholder="Account name, account number, mobile wallet number, routing/IBAN... whatever the admin needs." required></textarea>
+                    </div>
+                    
+                    <div class="input-wrapper mb-4">
+                        <label class="label mb-1 block">Note (optional)</label>
+                        <textarea id="withdraw-note" class="form-textarea" placeholder="Any message for admin"></textarea>
+                    </div>
+
+                    <div class="card-actions">
+                        <button type="submit" id="btn-submit-withdraw" class="btn btn-primary">Submit request</button>
+                        <button type="button" class="btn btn-outline" onclick="document.getElementById('withdrawal-form').reset()">Clear</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Withdrawals History -->
+            <div class="card bg-light mt-3">
+                <h3 class="card-title mb-2">Your withdrawals</h3>
+                <p class="text-xs text-muted mb-3">Pending, paid, and rejected requests (newest first).</p>
+                <div id="withdrawal-history-list" class="transaction-list">
+                    <p class="text-muted text-sm py-2">No withdrawal requests yet.</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- ========================================== -->
+        <!-- 4. PROFILE TAB -->
+        <!-- ========================================== -->
+        <section id="profile" class="tab-content">
+            <div class="card text-center">
+                <div class="avatar-circle mb-3"><i class="fa-solid fa-user text-3xl text-green"></i></div>
+                <h3 class="card-title" id="profile-name">Creator</h3>
+                <p class="text-muted text-sm mb-4" id="profile-email"></p>
+                
+                <button class="btn btn-outline text-red-500 w-full" onclick="logoutUser()">
+                    <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Log out
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active" data-target="dashboard">
+            <i class="fa-solid fa-border-all"></i><span>Dashboard</span>
+        </a>
+        <a href="#" class="nav-item" data-target="payments">
+            <i class="fa-solid fa-money-bill-wave"></i><span>Payments</span>
+        </a>
+        <a href="#" class="nav-item" data-target="withdrawals">
+            <i class="fa-solid fa-building-columns"></i><span>Withdrawals</span>
+        </a>
+        <a href="#" class="nav-item" data-target="profile">
+            <i class="fa-regular fa-user"></i><span>Profile</span>
+        </a>
+    </nav>
+
+    <!-- Configuration & Logic -->
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/dashboard.js"></script>
 </body>
 </html>
