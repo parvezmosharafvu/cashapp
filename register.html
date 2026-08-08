@@ -3,33 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Register - Secure Gateway</title>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <title>Create Account - Cioup</title>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        :root { --primary: #00d26a; --bg: #050505; --card-bg: #0d110f; --border: #1e2622; --text-main: #ffffff; --text-muted: #9ca3af; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif; }
+        body { background: radial-gradient(circle at top, #0a2e16 0%, var(--bg) 40%); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 2rem 1rem; }
+        
+        .brand-logo { display: flex; align-items: center; gap: 0.5rem; font-size: 1.75rem; font-weight: 700; margin-bottom: 2rem; }
+        .brand-icon { background: var(--primary); color: #000; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-weight: 900; }
+        
+        .auth-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; width: 100%; max-width: 700px; padding: 2rem; position: relative; overflow: hidden; margin-bottom: 1.5rem;}
+        .auth-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #00d26a, #008f48); }
+        
+        .badge { color: var(--primary); font-size: 0.65rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 0.5rem; display: block; }
+        h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; }
+        
+        .feature-list { list-style: none; margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; }
+        .feature-list li { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .feature-list li i { color: var(--primary); }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem; }
+        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+        
+        .form-group.full-width { grid-column: 1 / -1; }
+        
+        label { display: block; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.5rem; }
+        input { width: 100%; background: #131916; border: 1px solid var(--border); color: white; border-radius: 8px; padding: 0.875rem 1rem; font-size: 0.95rem; outline: none; transition: border 0.2s; }
+        input:focus { border-color: var(--primary); }
+        .input-hint { display: block; font-size: 0.7rem; color: #6b7280; margin-top: 0.35rem; }
+        
+        .form-actions { display: flex; justify-content: flex-end; align-items: center; gap: 1rem; margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.5rem; }
+        .link { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; }
+        .link:hover { color: white; }
+        
+        .btn-primary { background: var(--primary); color: #000; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: opacity 0.2s; }
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .approval-box { background: #072210; border: 1px solid #10421e; border-radius: 12px; padding: 1.5rem; max-width: 700px; width: 100%; }
+        .approval-box h4 { color: var(--primary); margin-bottom: 0.5rem; font-size: 0.95rem; }
+        .approval-box p { color: #d1d5db; font-size: 0.85rem; margin-bottom: 1rem; line-height: 1.5; }
+        .btn-outline-green { border: 1px solid var(--primary); color: var(--primary); background: transparent; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn-outline-green:hover { background: rgba(0, 210, 106, 0.1); }
+        
+        .page-footer { text-align: center; margin-top: 2rem; font-size: 0.75rem; color: #4b5563; line-height: 1.5; }
+        .page-footer strong { color: #6b7280; }
+        
+        .error-msg { color: #ef4444; font-size: 0.85rem; margin-bottom: 1rem; display: none; }
+        .success-msg { color: var(--primary); font-size: 0.85rem; margin-bottom: 1rem; display: none; }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <div class="auth-box">
-            <h2>Create Account</h2>
-            <form id="register-form">
-                <div class="input-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" placeholder="Enter your email" required autocomplete="off">
-                </div>
-                <div class="input-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" placeholder="Min. 6 characters" required minlength="6">
-                </div>
-                <button type="submit" class="btn mt-4" id="register-btn">Sign Up</button>
-            </form>
-            
-            <div id="msg" class="msg"></div>
-            
-            <p class="mt-4" style="font-size: 14px; color: var(--text-muted);">
-                Already have an account? <a href="login.html">Login here</a>
-            </p>
-        </div>
+
+    <div class="brand-logo">
+        <div class="brand-icon">C</div> Cioup
     </div>
 
-    <script type="module" src="assets/js/auth.js"></script>
+    <div class="auth-card">
+        <span class="badge">CREATE ACCOUNT</span>
+        <h2>Start accepting payments</h2>
+        
+        <ul class="feature-list">
+            <li><i class="fa-solid fa-check"></i> Launch your public payment profile in minutes.</li>
+            <li><i class="fa-solid fa-check"></i> Daily payment tracking</li>
+            <li><i class="fa-solid fa-check"></i> Instant payment confirmation</li>
+            <li><i class="fa-solid fa-check"></i> Public pay link and branded invoice pages</li>
+        </ul>
+
+        <div id="reg-error" class="error-msg"></div>
+        <div id="reg-success" class="success-msg">Registration successful! Redirecting...</div>
+
+        <form id="register-form">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="reg-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="reg-email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Phone number</label>
+                    <input type="text" id="reg-phone" placeholder="Optional">
+                </div>
+                <div class="form-group">
+                    <label>Telegram</label>
+                    <input type="text" id="reg-telegram" placeholder="Optional — @username or link">
+                </div>
+                
+                <div class="form-group full-width">
+                    <label>Facebook profile</label>
+                    <input type="text" id="reg-facebook" placeholder="URL or username">
+                    <span class="input-hint">Optional: Link to your Facebook profile or page.</span>
+                </div>
+                
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="reg-password" minlength="6" required>
+                </div>
+                <div class="form-group">
+                    <label>Confirm password</label>
+                    <input type="password" id="reg-confirm" minlength="6" required>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <a href="login.html" class="link">Already registered?</a>
+                <button type="submit" id="reg-btn" class="btn-primary">Register</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="approval-box">
+        <h4>Need fast approval?</h4>
+        <p>After registration, contact us with your registered email address for quicker account approval.</p>
+        <a href="mailto:taylorjamesbusiness0@gmail.com" class="btn-outline-green"><i class="fa-regular fa-envelope"></i> taylorjamesbusiness0@gmail.com</a>
+    </div>
+
+    <div class="page-footer">
+        Powered by <strong>Cioup</strong><br>
+        Secure account access
+    </div>
+
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/auth.js"></script>
 </body>
 </html>
