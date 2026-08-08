@@ -75,6 +75,7 @@ body { background-color: var(--bg-color); color: var(--text-main); padding-botto
 .badge { padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; }
 .badge-paid { background-color: var(--status-paid-bg); color: var(--status-paid-text); }
 .badge-pending { background-color: var(--status-pending-bg); color: var(--status-pending-text); }
+.badge-approved { background-color: #dbeafe; color: #1d4ed8; }
 
 .btn { padding: 0.875rem 1rem; border-radius: 10px; font-weight: 600; font-size: 0.95rem; border: none; cursor: pointer; width: 100%; text-align: center; transition: all 0.2s; }
 .btn-primary { background-color: var(--text-main); color: white; } 
