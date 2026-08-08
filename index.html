@@ -1,124 +1,92 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pay System - Secure Lightning Gateway</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cioup - Secure Crypto Payments</title>
     <style>
-        body {
-            background-color: #000;
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            font-family: 'DM Sans', sans-serif;
-            overflow: hidden;
-        }
+        :root { --primary: #00d26a; --bg: #050505; --text-main: #ffffff; --text-muted: #9ca3af; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif; }
+        body { background: radial-gradient(circle at top, #0a2e16 0%, var(--bg) 60%); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Navbar */
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 10%; }
+        .brand { font-size: 1.75rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem; }
+        .brand-icon { background: var(--primary); color: #000; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-weight: 900; font-size: 1.2rem;}
+        .nav-links a { color: var(--text-main); text-decoration: none; margin-left: 1.5rem; font-weight: 600; font-size: 0.95rem; transition: color 0.2s;}
+        .nav-links a:hover { color: var(--primary); }
+        
+        /* Hero Section */
+        .hero { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 4rem 1rem; }
+        .hero h1 { font-size: 3.5rem; font-weight: 800; line-height: 1.1; margin-bottom: 1.5rem; max-width: 800px; }
+        .hero h1 span { color: var(--primary); }
+        .hero p { font-size: 1.25rem; color: var(--text-muted); max-width: 600px; margin-bottom: 2.5rem; line-height: 1.6; }
+        
+        /* Buttons */
+        .btn-group { display: flex; gap: 1rem; }
+        .btn { padding: 1rem 2rem; border-radius: 8px; font-weight: 600; font-size: 1.1rem; text-decoration: none; transition: transform 0.2s; }
+        .btn-primary { background: var(--primary); color: #000; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 210, 106, 0.3); }
+        .btn-outline { background: transparent; border: 1px solid #334155; color: var(--text-main); }
+        .btn-outline:hover { border-color: var(--text-muted); }
 
-        .hero-container {
-            max-width: 600px;
-            padding: 40px 20px;
-            animation: fadeInDown 0.8s ease;
-        }
+        /* Features */
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; padding: 4rem 10%; background: #080a09; }
+        .feature-card { padding: 2rem; background: #0d110f; border: 1px solid #1e2622; border-radius: 12px; text-align: left; }
+        .feature-card h3 { color: var(--primary); margin-bottom: 1rem; font-size: 1.2rem;}
+        .feature-card p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; }
 
-        .logo-circle {
-            width: 80px;
-            height: 80px;
-            background: #00D632;
-            color: #fff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            font-weight: 800;
-            margin: 0 auto 24px;
-            box-shadow: 0 0 30px rgba(0, 214, 50, 0.4);
-        }
+        /* Footer */
+        footer { text-align: center; padding: 2rem; border-top: 1px solid #1e2622; font-size: 0.85rem; color: var(--text-muted); }
+        footer a { color: var(--primary); text-decoration: none; }
 
-        h1 {
-            font-size: 48px;
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: 16px;
-            letter-spacing: -1px;
-        }
-
-        p {
-            font-size: 18px;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 40px;
-            line-height: 1.5;
-        }
-
-        .btn-group {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            max-width: 320px;
-            margin: 0 auto;
-        }
-
-        .btn-main {
-            background: #00D632;
-            color: #000;
-            border: none;
-            border-radius: 999px;
-            padding: 18px 24px;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            text-decoration: none;
-            transition: transform 0.2s;
-        }
-
-        .btn-main:active {
-            transform: scale(0.96);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 999px;
-            padding: 18px 24px;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            text-decoration: none;
-            transition: transform 0.2s, background 0.2s;
-        }
-
-        .btn-secondary:active {
-            transform: scale(0.96);
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .btn-group { flex-direction: column; width: 100%; max-width: 300px; }
+            .nav-links { display: none; }
         }
     </style>
 </head>
 <body>
 
-    <div class="hero-container">
-        <div class="logo-circle">$</div>
-        <h1>Receive Payments <br>Instantly.</h1>
-        <p>The fastest and most secure way to accept Bitcoin and Lightning payments directly to your wallet.</p>
-        
+    <nav>
+        <div class="brand">
+            <div class="brand-icon">C</div> Cioup
+        </div>
+        <div class="nav-links">
+            <a href="login.html">Log In</a>
+            <a href="register.html" style="color: var(--primary);">Get Started</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <h1>Accept payments. Manage withdrawals. <span>Instantly.</span></h1>
+        <p>Launch your public payment profile in minutes. Receive crypto payments seamlessly with instant confirmations and daily tracking.</p>
         <div class="btn-group">
-            <a href="login.html" class="btn-main">Login to Dashboard</a>
-            <a href="register.html" class="btn-secondary">Create an Account</a>
+            <a href="register.html" class="btn btn-primary">Get Started</a>
+            <a href="login.html" class="btn btn-outline">Log In</a>
         </div>
     </div>
+
+    <div class="features">
+        <div class="feature-card">
+            <h3>Lightning Fast</h3>
+            <p>Powered by BTCPay and Lightning Network for instant, low-fee global transactions.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Branded Checkouts</h3>
+            <p>Use custom domains like pay-cash.app or onecox.org to build trust with your audience.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Easy Withdrawals</h3>
+            <p>Request payouts directly to your local bank, bKash, or Nagad straight from your dashboard.</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Cioup. All rights reserved.</p>
+        <p style="margin-top: 0.5rem;">Support: <a href="mailto:taylorjamesbusiness0@gmail.com">taylorjamesbusiness0@gmail.com</a></p>
+    </footer>
 
 </body>
 </html>
