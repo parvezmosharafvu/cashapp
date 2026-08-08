@@ -1,5 +1,5 @@
 // assets/js/create-model.js
-import { supabase } from './config.js';
+const supabase = window.supabase;
 
 const form = document.getElementById('model-form');
 const modelNameInput = document.getElementById('modelName');
