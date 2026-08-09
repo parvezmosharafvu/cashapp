@@ -1,403 +1,105 @@
-// assets/js/model.js
-const supabase = window.supabase;
+document.addEventListener("DOMContentLoaded", () => {
+    alert("JS LOADED");
 
-let currentModel = null;
-let rawInput = '';
-let currentPayCode = '';
-let pollInterval = null;
-let pollFailures = 0;
-
-// =========================
-// DOM
-// =========================
-
-const loaderOverlay = document.getElementById('loader-overlay');
-const errorScreen = document.getElementById('error-screen');
-
-const step1 = document.getElementById('step1');
-const step2 = document.getElementById('step2');
-const step3 = document.getElementById('step3');
-
-const modelNameEl = document.getElementById('model-name');
-const avatarTextEl = document.getElementById('avatar-text');
-
-const amountDisplay = document.getElementById('amountDisplay');
-const navAmount = document.getElementById('navAmount');
-
-const payBtn = document.getElementById('payBtn');
-const payBtnText = document.getElementById('payBtnText');
-
-const successAmount = document.getElementById('successAmount');
-
-// =========================
-// HELPERS
-// =========================
-
-const SUCCESS_STATUSES = [
-    'settled',
-    'processing',
-    'completed',
-    'paid',
-    'confirmed'
-];
-
-function showStep(step) {
-    if (step1) step1.style.display = step === 1 ? 'flex' : 'none';
-    if (step2) step2.style.display = step === 2 ? 'flex' : 'none';
-    if (step3) step3.style.display = step === 3 ? 'flex' : 'none';
-}
-
-function showError(message = 'Model not found or inactive.') {
-    if (loaderOverlay) {
-        loaderOverlay.style.display = 'none';
-    }
-    
-    if (errorScreen) {
-        const errorText = errorScreen.querySelector('p');
-        if (errorText) {
-            errorText.textContent = message;
-        }
-        errorScreen.style.display = 'flex';
-    }
-}
-
-function resetPolling() {
-    if (pollInterval) {
-        clearInterval(pollInterval);
-        pollInterval = null;
-    }
-    pollFailures = 0;
-}
-
-// =========================
-// LOAD MODEL
-// =========================
-
-async function loadModelData() {
-    try {
-        const params = new URLSearchParams(window.location.search);
-        
-        // URL Slug Sanitization
-        const slug = params.get('slug')?.trim()?.toLowerCase();
-
-        if (!slug) {
-            showError('Missing model link.');
-            return;
-        }
-
-        const { data: model, error } = await supabase
-            .from('models')
-            .select('*')
-            .eq('slug', slug)
-            .eq('status', 'active')
-            .single();
-
-        if (error) throw error;
-
-        if (!model) {
-            showError('Model not found.');
-            return;
-        }
-
-        // Data Validation (Production Ready)
-        if (!model.id) {
-            throw new Error('Missing model id');
-        }
-        if (!model.slug) {
-            throw new Error('Missing model slug');
-        }
-        if (!model.model_name) {
-            throw new Error('Invalid model name');
-        }
-
-        currentModel = model;
-
-        // UI Text Updates (Safe Checks)
-        if (modelNameEl) {
-            modelNameEl.textContent = model.model_name;
-        }
-        
-        if (avatarTextEl) {
-            avatarTextEl.textContent = model.avatar_text || '?';
-        }
-
-        // Theme Apply
-        const themeColor = model.theme_color || '#00D632';
-        document.documentElement.style.setProperty('--theme', themeColor);
-        document.body.style.background = themeColor;
-
-        const wrapper = document.getElementById('app-wrapper');
-        if (wrapper) {
-            wrapper.style.background = themeColor;
-        }
-
-        // Meta Theme Color Update (Android Browser Support)
-        document.querySelector('meta[name="theme-color"]')?.setAttribute('content', themeColor);
-
-        // Meta Tags Update (SEO & Open Graph)
-        document.title = `Pay ${model.model_name}`;
-        
-        document.querySelector('meta[property="og:title"]')?.setAttribute('content', `Pay ${model.model_name}`);
-        document.querySelector('meta[property="og:description"]')?.setAttribute('content', `Send payment to ${model.model_name}`);
-        
-        // Safe OG Image URL Resolution
-        const ogImageUrl = currentModel.og_image
-            ? new URL(currentModel.og_image, window.location.origin + '/').href
-            : `${window.location.origin}/preview.png`;
-
-        document.querySelector('meta[property="og:image"]')?.setAttribute('content', ogImageUrl);
-
-        if (loaderOverlay) {
-            loaderOverlay.style.display = 'none';
-        }
-        
-        showStep(1);
-
-    } catch (err) {
-        console.error('Model Load Failed:', err);
-        showError('Unable to load this model.');
-    }
-}
-
-// =========================
-// DISPLAY
-// =========================
-
-function updateDisplay() {
-    const value = parseFloat(rawInput) || 0;
-
-    if (amountDisplay) {
-        amountDisplay.textContent = rawInput === '' 
-            ? '$0' 
-            : rawInput === '.' 
-            ? '$0.' 
-            : `$${rawInput}`;
+    if (!window.supabase) {
+        console.error("Supabase client is missing!");
+        return;
     }
 
-    if (navAmount) {
-        navAmount.textContent = value > 0 ? `$${value.toFixed(2)}` : '$0';
-    }
-}
+    const form = document.getElementById("create-model-form");
+    if (!form) return;
 
-// =========================
-// KEYPAD
-// =========================
-
-document.querySelectorAll('.key').forEach(btn => {
-    btn.addEventListener('click', e => {
-        const key = e.currentTarget.dataset.key;
-
-        if (key === 'back') {
-            rawInput = rawInput.slice(0, -1);
-        } else if (key === '.') {
-            if (!rawInput.includes('.')) {
-                rawInput += '.';
-            }
-        } else {
-            if (rawInput.includes('.') && rawInput.split('.')[1].length >= 2) {
-                return;
-            }
-            
-            // Keypad Safe Float Check
-            const nextValue = Number(rawInput + key);
-            if (!Number.isNaN(nextValue) && nextValue > 2000) {
-                return;
-            }
-            
-            rawInput += key;
-        }
-
-        updateDisplay();
-    });
-});
-
-// =========================
-// BTCPAY
-// =========================
-
-if (payBtn) {
-    payBtn.addEventListener('click', async () => {
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
         
-        // Prevent double-click race condition
-        if (payBtn.disabled) {
-            return;
-        }
+        // 1. Debug: Form Submitted
+        alert("FORM SUBMITTED");
+
+        const btn = document.getElementById("btn-submit");
+        const originalBtnText = btn.textContent;
+        const errBox = document.getElementById("error-msg");
+
+        btn.disabled = true;
+        btn.textContent = "Generating...";
+        errBox.style.display = "none";
 
         try {
-            const amount = parseFloat(rawInput) || 0;
-
-            if (amount < 2) {
-                alert('Minimum payment amount is $2');
-                return;
-            }
-
-            if (!currentModel) {
-                alert('Model not loaded.');
-                return;
-            }
-
-            if (payBtn) {
-                payBtn.disabled = true;
-                payBtn.classList.add('loading');
+            // 2. Debug: Session Check Start
+            alert("SESSION CHECK");
+            
+            const { data: { session }, error: authError } = await window.supabase.auth.getSession();
+            
+            if (authError || !session) {
+                throw new Error("Authentication failed. Please log in again.");
             }
             
-            if (payBtnText) {
-                payBtnText.textContent = 'Generating...';
-            }
+            // 3. Debug: Session OK
+            alert("SESSION OK");
 
-            const { data, error } = await supabase.functions.invoke('btcpay-webhook', {
-                body: {
-                    action: 'create_invoice',
-                    amount,
-                    modelId: currentModel.id,
-                    paymentType: 'lightning',
-                    source: window.location.origin
-                }
-            });
-
-            if (error) throw error;
-
-            if (!data?.invoiceId) {
-                throw new Error('Invoice creation failed');
-            }
-
-            currentPayCode = data.lightningCode || data.btcAddress;
-
-            if (!currentPayCode) {
-                throw new Error('No payment code returned');
-            }
-
-            if (currentPayCode.toLowerCase().startsWith('lightning:')) {
-                currentPayCode = currentPayCode.slice(10);
-            }
-
-            const cashAppUrl = `https://cash.app/launch/lightning/${currentPayCode}`;
+            const modelName = document.getElementById("model-name").value.trim();
+            const themeColor = document.getElementById("theme-color").value;
+            const linkStyle = document.querySelector('input[name="link-style"]:checked').value;
             
-            // QR Element Check
-            const qrBox = document.getElementById('qrcode');
-            if (!qrBox) {
-                throw new Error('QR container not found');
-            }
-            qrBox.innerHTML = '';
+            let baseSlug = modelName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+            if (!baseSlug) baseSlug = "model";
 
-            new QRCode(qrBox, {
-                text: cashAppUrl,
-                width: 190,
-                height: 190
-            });
+            // Temporary Fix: Bypass unique check for debugging
+            const finalSlug = await makeUniqueSlug(baseSlug, linkStyle);
 
-            // QR Link Element Check
-            const qrLink = document.getElementById('qrLink');
-            if (!qrLink) {
-                throw new Error('QR link element missing');
+            const initialAvatarText = modelName.substring(0, 2).toUpperCase();
+
+            // 4. Debug: Start Insert
+            alert("START INSERT");
+
+            const { error: insertError } = await window.supabase
+                .from('models')
+                .insert({
+                    owner_id: session.user.id,
+                    model_name: modelName,
+                    slug: finalSlug,
+                    slug_style: linkStyle,
+                    theme_color: themeColor,
+                    avatar_text: initialAvatarText,
+                    status: 'active'
+                });
+
+            if (insertError) {
+                console.error("Insert Error:", insertError);
+                throw insertError;
             }
-            qrLink.href = cashAppUrl;
-            
-            showStep(2);
-            startPolling(data.invoiceId, amount);
+
+            // 5. Debug: Insert Complete
+            alert("INSERT COMPLETE");
+
+            // Redirect to dashboard
+            window.location.href = `dashboard.html?v=${new Date().getTime()}`;
 
         } catch (err) {
-            console.error('Invoice Error:', err);
-            alert('Unable to create invoice.');
-        } finally {
-            if (payBtn) {
-                payBtn.disabled = false;
-                payBtn.classList.remove('loading');
-            }
-            if (payBtnText) {
-                payBtnText.textContent = 'Pay';
-            }
+            console.error("Error creating model:", err);
+            errBox.textContent = err.message || "Failed to create model. Check console for details.";
+            errBox.style.display = "block";
+            btn.disabled = false;
+            btn.textContent = originalBtnText;
         }
     });
-}
 
-// =========================
-// POLLING
-// =========================
-
-function startPolling(invoiceId, amount) {
-    resetPolling();
-
-    pollInterval = setInterval(async () => {
-        try {
-            const { data } = await supabase.functions.invoke('btcpay-webhook', {
-                body: { checkStatus: true, invoiceId }
-            });
-
-            // Success Status Check (Future Ready)
-            const status = String(data?.status || '').toLowerCase();
-            
-            if (SUCCESS_STATUSES.includes(status)) {
-                resetPolling();
-                
-                // Loader hide on polling success
-                if (loaderOverlay) {
-                    loaderOverlay.style.display = 'none';
-                }
-
-                if (successAmount) {
-                    successAmount.textContent = `$${amount.toFixed(2)}`;
-                }
-                
-                showStep(3);
-            }
-
-        } catch (err) {
-            pollFailures++;
-            console.error('Polling Error:', err);
-
-            if (pollFailures >= 5) {
-                resetPolling();
-                alert('Connection lost. Please refresh.');
-            }
-        }
-    }, 5000);
-}
-
-// =========================
-// BUTTONS
-// =========================
-
-document.getElementById('cancelBtn')?.addEventListener('click', () => {
-    resetPolling();
-    showStep(1);
-});
-
-document.getElementById('doneBtn')?.addEventListener('click', () => {
-    window.location.reload();
-});
-
-document.getElementById('copyBtn')?.addEventListener('click', async () => {
-    if (!currentPayCode) return;
+    // Handle Link Style Preview updates
+    const nameInput = document.getElementById("model-name");
+    const styleRadios = document.querySelectorAll('input[name="link-style"]');
     
-    try {
-        await navigator.clipboard.writeText(currentPayCode);
-        const btn = document.getElementById('copyBtn');
-        if (btn) {
-            btn.textContent = 'Copied!';
-            
-            setTimeout(() => {
-                if (btn) btn.textContent = 'Copy address';
-            }, 2000);
-        }
-    } catch (err) {
-        console.error('Clipboard Error:', err);
+    function updatePreviews() {
+        let val = nameInput.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        if (!val) val = "model-name";
+        
+        document.getElementById("preview-flat").textContent = `cioup.com/${val}`;
+        document.getElementById("preview-dash").textContent = `cioup.com/${val}-1`;
     }
+
+    nameInput.addEventListener("input", updatePreviews);
+    styleRadios.forEach(r => r.addEventListener("change", updatePreviews));
 });
 
-document.getElementById('openCashAppBtn')?.addEventListener('click', () => {
-    const qrLink = document.getElementById('qrLink');
-    if (qrLink?.href) {
-        window.location.href = qrLink.href;
-    }
-});
-
-// =========================
-// CLEANUP & START
-// =========================
-
-window.addEventListener('beforeunload', () => {
-    resetPolling();
-});
-
-loadModelData();
+// Temporary Bypass Version
+async function makeUniqueSlug(slug, style) {
+    return slug;
+}
