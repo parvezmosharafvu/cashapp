@@ -86,21 +86,6 @@ form.addEventListener('submit', async (e) => {
         return;
     }
 
-    /*
-    const { count } = await supabase
-        .from('models')
-        .select('*', { count: 'exact', head: true })
-        .eq('owner_id', session.user.id);
-
-    if (count >= 10) {
-        msgDiv.textContent = 'Maximum 10 models allowed';
-        msgDiv.className = 'msg error';
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Create Model';
-        return;
-    }
-    */
-
     const style = document.querySelector('input[name="slugStyle"]:checked').value;
     let slug = style === 'dash' ? slugDashed(modelName) : slugFlat(modelName);
     if (!slug) slug = 'model';
@@ -119,9 +104,9 @@ form.addEventListener('submit', async (e) => {
     const avatar = makeInitials(modelName);
     const ogImage = `preview/${slug}.svg`;
 
-    // Fix 3: Save Slug Style
+    // Fix 3: Save Slug Style with Debug & Select
     alert("Starting insert...");
-    const { error } = await supabase
+    const { data, error } = await supabase
         .from('models')
         .insert({
             owner_id: session.user.id,
@@ -130,14 +115,22 @@ form.addEventListener('submit', async (e) => {
             avatar_text: avatar,
             og_image: ogImage,
             slug_style: style
-        });
+        })
+        .select();
     alert("Insert finished");
 
+    console.log("MODEL DATA:", data);
+    console.log("MODEL ERROR:", error);
+
     if (error) {
+        alert(error.message);
+
         msgDiv.textContent = error.message;
         msgDiv.className = 'msg error';
+
         submitBtn.disabled = false;
         submitBtn.textContent = 'Create Model';
+
         return;
     }
 
