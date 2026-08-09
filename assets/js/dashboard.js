@@ -168,9 +168,19 @@ async function loadDashboardData(userId) {
             loadAllPayments(modelData.id);
             loadWithdrawalHistory(modelData.id);
         } else {
-            if (linkEl) linkEl.textContent = "Please create a model profile first.";
+            if (linkEl) {
+                linkEl.innerHTML = `
+                    <a href="create-model.html" style="color: var(--primary); text-decoration: underline;">
+                       Create your first model →
+                    </a>
+                `;
+            }
+
             if (listContainer) {
-                listContainer.innerHTML = `<p class="text-muted text-sm py-2">Setup your profile to start receiving payments.</p>`;
+                listContainer.innerHTML =
+                `<p class="text-muted text-sm py-2">
+                    Setup your profile to start receiving payments.
+                </p>`;
             }
         }
     } catch (err) {
