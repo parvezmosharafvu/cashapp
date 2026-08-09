@@ -197,8 +197,8 @@ function updatePayLink() {
     const selectedDomain = domainSelect ? domainSelect.value : window.location.host;
     const protocol = window.location.protocol;
     
-    // /pay/ route added for better routing future-proof
-    const generatedUrl = `${protocol}//${selectedDomain}/pay/${currentModel.slug}`;
+    // Updated route format
+    const generatedUrl = `${protocol}//${selectedDomain}/model.html?slug=${currentModel.slug}`;
     
     setElText("primary-pay-link", generatedUrl);
     window.currentPayUrl = generatedUrl;
