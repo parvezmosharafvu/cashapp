@@ -70,7 +70,7 @@ function resetPolling() {
 }
 
 // =========================
-// LOAD MODEL
+// LOAD MODEL (UPDATED)
 // =========================
 
 async function loadModelData() {
@@ -85,41 +85,43 @@ async function loadModelData() {
             return;
         }
 
+        console.log("🔍 Fetching model for slug:", slug);
+
+        // ফিক্স ১: .single() এর বদলে .maybeSingle() ব্যবহার করা হলো
+        // ফিক্স ২: স্ট্যাটাস চেক আপাতত রিমুভ করা হলো এটা দেখার জন্য যে ডাটা আদৌ আসছে কি না
         const { data: model, error } = await supabase
             .from('models')
             .select('*')
             .eq('slug', slug)
-            .eq('status', 'active')
-            .single();
+            .maybeSingle();
 
-        if (error) throw error;
+        console.log("📊 Supabase Response:", { model, error });
+
+        if (error) {
+            console.error("Supabase SQL Error:", error);
+            throw error;
+        }
 
         if (!model) {
+            console.warn("⚠️ No model found in database for this slug. Check RLS or slug exact match.");
             showError('Model not found.');
             return;
         }
 
-        // Data Validation (Production Ready)
-        if (!model.id) {
-            throw new Error('Missing model id');
+        if (model.status !== 'active') {
+            console.warn(`⚠️ Model found, but status is '${model.status}', not 'active'.`);
         }
-        if (!model.slug) {
-            throw new Error('Missing model slug');
-        }
-        if (!model.model_name) {
-            throw new Error('Invalid model name');
+
+        // Data Validation
+        if (!model.id || !model.slug || !model.model_name) {
+            throw new Error('Invalid model data format in database.');
         }
 
         currentModel = model;
 
-        // UI Text Updates (Safe Checks)
-        if (modelNameEl) {
-            modelNameEl.textContent = model.model_name;
-        }
-        
-        if (avatarTextEl) {
-            avatarTextEl.textContent = model.avatar_text || '?';
-        }
+        // UI Text Updates
+        if (modelNameEl) modelNameEl.textContent = model.model_name;
+        if (avatarTextEl) avatarTextEl.textContent = model.avatar_text || model.model_name.substring(0,2).toUpperCase();
 
         // Theme Apply
         const themeColor = model.theme_color || '#00D632';
@@ -127,34 +129,26 @@ async function loadModelData() {
         document.body.style.background = themeColor;
 
         const wrapper = document.getElementById('app-wrapper');
-        if (wrapper) {
-            wrapper.style.background = themeColor;
-        }
+        if (wrapper) wrapper.style.background = themeColor;
 
-        // Meta Theme Color Update (Android Browser Support)
         document.querySelector('meta[name="theme-color"]')?.setAttribute('content', themeColor);
 
-        // Meta Tags Update (SEO & Open Graph)
+        // Meta Tags Update
         document.title = `Pay ${model.model_name}`;
-        
         document.querySelector('meta[property="og:title"]')?.setAttribute('content', `Pay ${model.model_name}`);
         document.querySelector('meta[property="og:description"]')?.setAttribute('content', `Send payment to ${model.model_name}`);
         
-        // Safe OG Image URL Resolution
         const ogImageUrl = currentModel.og_image
             ? new URL(currentModel.og_image, window.location.origin + '/').href
             : `${window.location.origin}/preview.png`;
-
         document.querySelector('meta[property="og:image"]')?.setAttribute('content', ogImageUrl);
 
-        if (loaderOverlay) {
-            loaderOverlay.style.display = 'none';
-        }
+        if (loaderOverlay) loaderOverlay.style.display = 'none';
         
         showStep(1);
 
     } catch (err) {
-        console.error('Model Load Failed:', err);
+        console.error('🚨 Model Load Failed (Catch Block):', err);
         showError('Unable to load this model.');
     }
 }
