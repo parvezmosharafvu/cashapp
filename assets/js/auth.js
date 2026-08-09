@@ -35,13 +35,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
 
             if (error) {
+                console.error(error);
                 errBox.textContent = error.message;
                 errBox.style.display = "block";
                 btn.disabled = false;
                 btn.textContent = "Log in";
-            } else {
-                window.location.href = 'dashboard.html';
+                return;
             }
+
+            window.location.href = 'dashboard.html';
         });
     }
 
@@ -108,6 +110,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 if (profileError) {
                     console.error("Profile insertion error:", profileError);
+                    errBox.textContent = "Profile error: " + profileError.message;
+                    errBox.style.display = "block";
+                    btn.disabled = false;
+                    btn.textContent = "Register";
+                    return;
                 }
             }
 
