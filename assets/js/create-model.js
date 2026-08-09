@@ -82,12 +82,23 @@ form.addEventListener('submit', async (e) => {
         return;
     }
 
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+    alert("SESSION CHECK");
+    console.log(session);
+    console.log(sessionError);
+
+    if (sessionError) {
+        alert(sessionError.message);
+    }
 
     if (!session) {
+        alert("NO SESSION");
         location.href = 'login.html';
         return;
     }
+
+    alert("SESSION OK");
 
     const style = document.querySelector('input[name="slugStyle"]:checked').value;
     let slug = style === 'dash' ? slugDashed(modelName) : slugFlat(modelName);
@@ -108,7 +119,7 @@ form.addEventListener('submit', async (e) => {
     const ogImage = `preview/${slug}.svg`;
 
     // Fix 3: Save Slug Style with Debug & Select
-    alert("Starting insert...");
+    alert("START INSERT");
     const { data, error } = await supabase
         .from('models')
         .insert({
@@ -120,7 +131,7 @@ form.addEventListener('submit', async (e) => {
             slug_style: style
         })
         .select();
-    alert("Insert finished");
+    alert("INSERT COMPLETE");
 
     console.log("MODEL DATA:", data);
     console.log("MODEL ERROR:", error);
