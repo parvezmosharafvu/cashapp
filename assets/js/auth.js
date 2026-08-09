@@ -118,10 +118,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
             }
 
-            // 3. Success & Redirect
+            // 3. Success & Redirect to login.html
             successBox.style.display = "block";
             setTimeout(() => {
-                window.location.href = 'dashboard.html';
+                window.location.href = 'login.html';
             }, 1500);
         });
     }
