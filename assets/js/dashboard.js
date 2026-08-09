@@ -139,7 +139,7 @@ async function loadDashboardData(userId) {
         // Fetch model profile using maybeSingle() to prevent crash on new users
         const { data: modelData, error: modelError } = await window.supabase
             .from("models")
-            .select("id, slug, total_balance, total_pending, total_paid, total_withdrawn, owner_id")
+            .select("*")
             .eq("owner_id", userId)
             .maybeSingle();
 
