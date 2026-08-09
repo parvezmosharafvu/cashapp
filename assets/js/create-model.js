@@ -86,6 +86,7 @@ form.addEventListener('submit', async (e) => {
         return;
     }
 
+    /*
     const { count } = await supabase
         .from('models')
         .select('*', { count: 'exact', head: true })
@@ -98,6 +99,7 @@ form.addEventListener('submit', async (e) => {
         submitBtn.textContent = 'Create Model';
         return;
     }
+    */
 
     const style = document.querySelector('input[name="slugStyle"]:checked').value;
     let slug = style === 'dash' ? slugDashed(modelName) : slugFlat(modelName);
@@ -118,6 +120,7 @@ form.addEventListener('submit', async (e) => {
     const ogImage = `preview/${slug}.svg`;
 
     // Fix 3: Save Slug Style
+    alert("Starting insert...");
     const { error } = await supabase
         .from('models')
         .insert({
@@ -128,6 +131,7 @@ form.addEventListener('submit', async (e) => {
             og_image: ogImage,
             slug_style: style
         });
+    alert("Insert finished");
 
     if (error) {
         msgDiv.textContent = error.message;
