@@ -1,157 +1,105 @@
-// assets/js/create-model.js
-const supabase = window.supabase;
+document.addEventListener("DOMContentLoaded", () => {
+    alert("JS LOADED");
 
-alert("JS LOADED");
-console.log("JS LOADED");
+    if (!window.supabase) {
+        console.error("Supabase client is missing!");
+        return;
+    }
 
-const form = document.getElementById('model-form');
-const modelNameInput = document.getElementById('modelName');
-const radioInputs = document.querySelectorAll('input[name="slugStyle"]');
-const msgDiv = document.getElementById('msg');
-const submitBtn = document.getElementById('submit-btn');
+    const form = document.getElementById("create-model-form");
+    if (!form) return;
 
-const domain = window.location.origin;
-
-// Update static domain in HTML dynamically on load
-document.addEventListener('DOMContentLoaded', () => {
-    const previewBox = document.getElementById('previewSlug').parentElement;
-    previewBox.innerHTML = `${domain}/<span id="previewSlug" style="color: var(--primary); font-weight: 700;">link</span>`;
-});
-
-function makeInitials(name) {
-    if (!name) return '?';
-    return name.trim().split(' ').slice(0, 2).map(v => v[0]).join('').toUpperCase();
-}
-
-function slugDashed(name) {
-    return name.trim().toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, '-');
-}
-
-function slugFlat(name) {
-    return name.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-}
-
-async function makeUniqueSlug(slug, style) {
-    let finalSlug = slug;
-    let count = 2;
-
-    while (true) {
-        const { data } = await supabase.from('models').select('id').eq('slug', finalSlug);
-        if (!data || !data.length) break;
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
         
-        if (style === 'flat') {
-            finalSlug = `${slug}${count}`;
-        } else {
-            finalSlug = `${slug}-${count}`;
+        // 1. Debug: Form Submitted
+        alert("FORM SUBMITTED");
+
+        const btn = document.getElementById("btn-submit");
+        const originalBtnText = btn.textContent;
+        const errBox = document.getElementById("error-msg");
+
+        btn.disabled = true;
+        btn.textContent = "Generating...";
+        errBox.style.display = "none";
+
+        try {
+            // 2. Debug: Session Check Start
+            alert("SESSION CHECK");
+            
+            const { data: { session }, error: authError } = await window.supabase.auth.getSession();
+            
+            if (authError || !session) {
+                throw new Error("Authentication failed. Please log in again.");
+            }
+            
+            // 3. Debug: Session OK
+            alert("SESSION OK");
+
+            const modelName = document.getElementById("model-name").value.trim();
+            const themeColor = document.getElementById("theme-color").value;
+            const linkStyle = document.querySelector('input[name="link-style"]:checked').value;
+            
+            let baseSlug = modelName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+            if (!baseSlug) baseSlug = "model";
+
+            // Temporary Fix: Bypass unique check for debugging
+            const finalSlug = await makeUniqueSlug(baseSlug, linkStyle);
+
+            const initialAvatarText = modelName.substring(0, 2).toUpperCase();
+
+            // 4. Debug: Start Insert
+            alert("START INSERT");
+
+            const { error: insertError } = await window.supabase
+                .from('models')
+                .insert({
+                    owner_id: session.user.id,
+                    model_name: modelName,
+                    slug: finalSlug,
+                    slug_style: linkStyle,
+                    theme_color: themeColor,
+                    avatar_text: initialAvatarText,
+                    status: 'active'
+                });
+
+            if (insertError) {
+                console.error("Insert Error:", insertError);
+                throw insertError;
+            }
+
+            // 5. Debug: Insert Complete
+            alert("INSERT COMPLETE");
+
+            // Redirect to dashboard
+            window.location.href = `dashboard.html?v=${new Date().getTime()}`;
+
+        } catch (err) {
+            console.error("Error creating model:", err);
+            errBox.textContent = err.message || "Failed to create model. Check console for details.";
+            errBox.style.display = "block";
+            btn.disabled = false;
+            btn.textContent = originalBtnText;
         }
-        count++;
-    }
-    return finalSlug;
-}
+    });
 
-function updatePreview() {
-    const name = modelNameInput.value;
-    const style = document.querySelector('input[name="slugStyle"]:checked').value;
+    // Handle Link Style Preview updates
+    const nameInput = document.getElementById("model-name");
+    const styleRadios = document.querySelectorAll('input[name="link-style"]');
     
-    document.getElementById('previewName').textContent = name || 'Model Name';
-    document.getElementById('previewAvatar').textContent = makeInitials(name);
-    
-    let tempSlug = style === 'dash' ? slugDashed(name) : slugFlat(name);
-    const previewSlugEl = document.getElementById('previewSlug');
-    if (previewSlugEl) previewSlugEl.textContent = tempSlug || 'link';
-}
-
-modelNameInput.addEventListener('input', updatePreview);
-radioInputs.forEach(radio => radio.addEventListener('change', updatePreview));
-
-form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Generating...';
-    msgDiv.textContent = '';
-    msgDiv.className = 'msg';
-
-    // Fix 1: Model Name Validation
-    const modelName = modelNameInput.value.trim();
-    if(modelName.length < 3){
-        msgDiv.textContent = 'Model name must be at least 3 characters';
-        msgDiv.className = 'msg error';
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Create Model';
-        return;
+    function updatePreviews() {
+        let val = nameInput.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        if (!val) val = "model-name";
+        
+        document.getElementById("preview-flat").textContent = `cioup.com/${val}`;
+        document.getElementById("preview-dash").textContent = `cioup.com/${val}-1`;
     }
 
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-    alert("SESSION CHECK");
-    console.log(session);
-    console.log(sessionError);
-
-    if (sessionError) {
-        alert(sessionError.message);
-    }
-
-    if (!session) {
-        alert("NO SESSION");
-        location.href = 'login.html';
-        return;
-    }
-
-    alert("SESSION OK");
-
-    const style = document.querySelector('input[name="slugStyle"]:checked').value;
-    let slug = style === 'dash' ? slugDashed(modelName) : slugFlat(modelName);
-    if (!slug) slug = 'model';
-
-    // Fix 2: Reserved Slug Block
-    const reserved = ['admin', 'login', 'register', 'dashboard', 'create-model', 'assets', 'api'];
-    if(reserved.includes(slug)){
-        msgDiv.textContent = 'This link name is reserved';
-        msgDiv.className = 'msg error';
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Create Model';
-        return;
-    }
-
-    slug = await makeUniqueSlug(slug, style);
-    const avatar = makeInitials(modelName);
-    const ogImage = `preview/${slug}.svg`;
-
-    // Fix 3: Save Slug Style with Debug & Select
-    alert("START INSERT");
-    const { data, error } = await supabase
-        .from('models')
-        .insert({
-            owner_id: session.user.id,
-            model_name: modelName,
-            slug: slug,
-            avatar_text: avatar,
-            og_image: ogImage,
-            slug_style: style
-        })
-        .select();
-    alert("INSERT COMPLETE");
-
-    console.log("MODEL DATA:", data);
-    console.log("MODEL ERROR:", error);
-
-    if (error) {
-        alert(error.message);
-
-        msgDiv.textContent = error.message;
-        msgDiv.className = 'msg error';
-
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Create Model';
-
-        return;
-    }
-
-    msgDiv.textContent = `Success! Link: /${slug}`;
-    msgDiv.className = 'msg success';
-    
-    setTimeout(() => {
-        location.href = 'dashboard.html';
-    }, 1500);
+    nameInput.addEventListener("input", updatePreviews);
+    styleRadios.forEach(r => r.addEventListener("change", updatePreviews));
 });
+
+// Temporary Bypass Version
+async function makeUniqueSlug(slug, style) {
+    return slug;
+}
