@@ -1,6 +1,9 @@
 // assets/js/create-model.js
 const supabase = window.supabase;
 
+alert("JS LOADED");
+console.log("JS LOADED");
+
 const form = document.getElementById('model-form');
 const modelNameInput = document.getElementById('modelName');
 const radioInputs = document.querySelectorAll('input[name="slugStyle"]');
