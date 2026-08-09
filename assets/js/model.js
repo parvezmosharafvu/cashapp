@@ -1,5 +1,5 @@
 // assets/js/model.js
-
+import { supabase } from './config.js';
 const supabase = window.supabase;
 
 let currentModel = null;
