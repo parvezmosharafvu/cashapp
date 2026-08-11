@@ -1,5 +1,3 @@
-// assets/js/auth.js
-
 document.addEventListener("DOMContentLoaded", async () => {
     if (!window.supabase) {
         console.error("Supabase not found. Check config.js");
@@ -27,17 +25,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             btn.disabled = true;
             btn.textContent = "Logging in...";
-            errBox.style.display = "none";
+            if(errBox) errBox.style.display = "none";
 
-            const { data, error } = await window.supabase.auth.signInWithPassword({
+            const { error } = await window.supabase.auth.signInWithPassword({
                 email: email,
                 password: password,
             });
 
             if (error) {
                 console.error(error);
-                errBox.textContent = error.message;
-                errBox.style.display = "block";
+                if(errBox) {
+                    errBox.textContent = error.message;
+                    errBox.style.display = "block";
+                } else {
+                    alert(error.message);
+                }
                 btn.disabled = false;
                 btn.textContent = "Log in";
                 return;
@@ -48,7 +50,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // ==========================================
-    // REGISTRATION FLOW & PROFILE CREATION
+    // REGISTRATION FLOW & AUTO MODEL ASSIGN
     // ==========================================
     const regForm = document.getElementById("register-form");
     if (regForm) {
@@ -57,69 +59,73 @@ document.addEventListener("DOMContentLoaded", async () => {
             
             const name = document.getElementById("reg-name").value.trim();
             const email = document.getElementById("reg-email").value.trim();
-            const phone = document.getElementById("reg-phone").value.trim();
-            const telegram = document.getElementById("reg-telegram").value.trim();
-            const facebook = document.getElementById("reg-facebook").value.trim();
             const password = document.getElementById("reg-password").value;
-            const confirm = document.getElementById("reg-confirm").value;
+            const confirm = document.getElementById("reg-confirm") ? document.getElementById("reg-confirm").value : password;
             
             const btn = document.getElementById("reg-btn");
             const errBox = document.getElementById("reg-error");
             const successBox = document.getElementById("reg-success");
 
             if (password !== confirm) {
-                errBox.textContent = "Passwords do not match.";
-                errBox.style.display = "block";
+                if(errBox) { errBox.textContent = "Passwords do not match."; errBox.style.display = "block"; }
                 return;
             }
 
             btn.disabled = true;
             btn.textContent = "Creating Account...";
-            errBox.style.display = "none";
+            if(errBox) errBox.style.display = "none";
 
             // 1. Create User in Supabase Auth
             const { data: authData, error: authError } = await window.supabase.auth.signUp({
                 email: email,
                 password: password,
-                options: {
-                    data: { full_name: name }
-                }
+                options: { data: { full_name: name } }
             });
 
             if (authError) {
-                errBox.textContent = authError.message;
-                errBox.style.display = "block";
+                if(errBox) { errBox.textContent = authError.message; errBox.style.display = "block"; }
                 btn.disabled = false;
                 btn.textContent = "Register";
                 return;
             }
 
-            // 2. Insert into profiles table explicitly
             if (authData.user) {
-                const { error: profileError } = await window.supabase
-                    .from('profiles')
-                    .upsert({
-                        id: authData.user.id,
-                        full_name: name,
-                        email: email,
-                        phone: phone || null,
-                        facebook: facebook || null,
-                        telegram: telegram || null,
-                        status: 'active'
-                    });
+                const userId = authData.user.id;
 
-                if (profileError) {
-                    console.error("Profile insertion error:", profileError);
-                    errBox.textContent = "Profile error: " + profileError.message;
-                    errBox.style.display = "block";
-                    btn.disabled = false;
-                    btn.textContent = "Register";
-                    return;
+                // 2. Insert into profiles table
+                await window.supabase.from('profiles').upsert({
+                    id: userId,
+                    full_name: name,
+                    email: email,
+                    status: 'active'
+                });
+
+                // 3. AUTO-ASSIGN DEFAULT MODELS
+                // এখানে আপনার রানিং মডেলগুলোর নাম এবং স্লাগ (slug) দিন
+                const defaultModels = [
+                    { name: 'Beauty Girl', slug: 'beauty-girl' },
+                    { name: 'Sophia', slug: 'sophia' },
+                    { name: 'Red Rose', slug: 'red-rose' },
+                    { name: 'Cute Queen', slug: 'cute-queen' }
+                ];
+
+                const modelsToInsert = defaultModels.map(model => ({
+                    owner_id: userId,
+                    model_name: model.name,
+                    slug: model.slug, // Frontend will use this slug to generate the payment link
+                    status: 'active'
+                }));
+
+                // Insert all default models into the database for this new user
+                const { error: modelError } = await window.supabase.from('models').insert(modelsToInsert);
+
+                if (modelError) {
+                    console.error("Failed to auto-assign models:", modelError);
                 }
             }
 
-            // 3. Success & Redirect to login.html
-            successBox.style.display = "block";
+            // 4. Success & Redirect
+            if(successBox) successBox.style.display = "block";
             setTimeout(() => {
                 window.location.href = 'login.html';
             }, 1500);
