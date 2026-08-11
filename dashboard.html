@@ -3,232 +3,190 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Creator Dashboard</title>
+<title>Creator Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet">
 <!-- Supabase CDN -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Config File (Contains Keys) -->
+<script src="assets/js/config.js"></script>
 
 <style>
+/* ====== EXACT MATCH DARK THEME FROM YOUR IMAGE ====== */
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-body { font-family:'DM Sans',sans-serif; background:#000; color:#fff; min-height:100vh; }
+body { font-family:'DM Sans',sans-serif; background:#050505; color:#fff; min-height:100vh; padding-bottom: 40px; }
 
-/* ══════ TOPBAR ══════ */
-.topbar { background:rgba(10,10,10,0.95); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-bottom:1px solid rgba(255,255,255,0.06); padding:13px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
-.topbar-logo { display:flex; align-items:center; gap:10px; }
-.topbar-icon { width:36px; height:36px; background:linear-gradient(135deg,#00D632,#00903c); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:900; color:#fff; box-shadow:0 3px 12px rgba(0,214,50,0.35); }
-.topbar-title { font-size:16px; font-weight:800; letter-spacing:-0.2px; }
-.topbar-sub { font-size:11px; color:rgba(255,255,255,0.3); font-weight:500; }
-.logout-btn { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); color:rgba(255,255,255,0.55); padding:7px 15px; border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
-.logout-btn:hover { background:rgba(255,80,80,0.12); border-color:rgba(255,80,80,0.3); color:#ff6b6b; }
+/* Header */
+.header { display:flex; align-items:center; justify-content:space-between; padding:20px; position:sticky; top:0; background:rgba(5,5,5,0.9); backdrop-filter:blur(10px); z-index:100; border-bottom:1px solid rgba(255,255,255,0.05); }
+.header-left { display:flex; align-items:center; gap:12px; }
+.logo-icon { width:40px; height:40px; background:#00D632; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:900; color:#000; box-shadow:0 0 15px rgba(0,214,50,0.4); }
+.header-title { font-size:18px; font-weight:800; letter-spacing:-0.5px; }
+.header-sub { font-size:12px; color:rgba(255,255,255,0.4); font-weight:500; }
+.btn-logout { background:transparent; border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.7); padding:8px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; font-family:'DM Sans'; }
+.btn-logout:active { background:rgba(255,255,255,0.05); transform:scale(0.95); }
 
-.content { padding:20px; max-width:1200px; margin:0 auto; }
+.content { padding:0 20px; max-width:800px; margin:0 auto; }
 
-/* ══════ MODEL LINKS SECTION ══════ */
-.model-links-container { display:flex; flex-direction:column; gap:12px; margin-bottom:24px; }
-.model-link-box { background:rgba(0,214,50,0.05); border:1px dashed rgba(0,214,50,0.3); padding:16px; border-radius:14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;}
-.model-link-text { font-family:monospace; font-size:14px; color:#00D632; word-break:break-all; margin-top:4px;}
-.copy-btn { background:#00D632; color:#000; border:none; padding:8px 16px; border-radius:8px; font-weight:800; cursor:pointer; font-size:12px; font-family:'DM Sans'; transition: transform 0.1s;}
-.copy-btn:active { transform:scale(0.95); }
+/* Grid Cards */
+.stats-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:15px; margin-top:10px; margin-bottom:20px; }
+.stat-card { background:#111; border:1px solid rgba(255,255,255,0.05); border-radius:16px; padding:20px; position:relative; overflow:hidden; }
+.stat-card.glow-green { background:radial-gradient(circle at top right, rgba(0,214,50,0.08) 0%, #111 70%); border-color:rgba(0,214,50,0.15); }
+.stat-icon { font-size:22px; margin-bottom:12px; }
+.stat-label { font-size:10px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:1px; font-weight:700; margin-bottom:8px; }
+.stat-val { font-size:28px; font-weight:800; letter-spacing:-1px; line-height:1; }
+.val-green { color:#00D632; }
+.val-yellow { color:#ffc800; }
+.val-red { color:#ff5050; }
+.stat-sub { font-size:11px; color:rgba(255,255,255,0.3); margin-top:8px; font-weight:500; }
 
-/* ══════ STAT CARDS ══════ */
-.stats-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:24px; }
-@media (min-width:640px) { .stats-grid { grid-template-columns:repeat(4,1fr); gap:14px; } }
-.stat-card { background:#0d0d0d; border:1px solid rgba(255,255,255,0.07); border-radius:18px; padding:18px 16px; position:relative; overflow:hidden; }
-.stat-card::before { content:''; position:absolute; top:0; right:0; width:60px; height:60px; border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%); transform:translate(20px,-20px); }
-.stat-card.green { border-color:rgba(0,214,50,0.18); background:linear-gradient(135deg,#0d0d0d,#0a1a0f); }
-.stat-card.green::before { background:radial-gradient(circle, rgba(0,214,50,0.08) 0%, transparent 70%); }
-.stat-icon { font-size:20px; margin-bottom:10px; }
-.stat-label { font-size:10px; color:rgba(255,255,255,0.38); text-transform:uppercase; letter-spacing:0.12em; font-weight:700; margin-bottom:6px; }
-.stat-val { font-size:24px; font-weight:800; color:#fff; letter-spacing:-0.5px; line-height:1; }
-.stat-card.green .stat-val { color:#00D632; }
-.stat-sub { font-size:11px; color:rgba(255,255,255,0.28); margin-top:5px; font-weight:500; }
+/* Tabs & Action Buttons */
+.tabs-container { display:flex; gap:10px; margin-bottom:15px; }
+.tab-btn { flex:1; background:#111; border:1px solid rgba(255,255,255,0.05); color:rgba(255,255,255,0.5); padding:14px; border-radius:12px; font-size:14px; font-weight:700; cursor:pointer; font-family:'DM Sans'; display:flex; align-items:center; justify-content:center; gap:8px; transition:all 0.2s; }
+.tab-btn.active { background:rgba(0,214,50,0.05); border-color:rgba(0,214,50,0.3); color:#00D632; }
 
-/* ══════ TABS ══════ */
-.tabs { display:flex; gap:8px; margin-bottom:18px; }
-.tab-btn { background:#111; border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.45); padding:9px 18px; border-radius:11px; font-size:13px; font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.22s; flex:1; text-align:center; }
-@media (min-width:480px) { .tab-btn { flex:none; } }
-.tab-btn.active { background:rgba(0,214,50,0.12); border-color:rgba(0,214,50,0.3); color:#00D632; }
+.refresh-wrap { margin-bottom:20px; display:inline-block; }
+.btn-refresh { background:rgba(0,214,50,0.05); border:1px solid rgba(0,214,50,0.3); color:#00D632; padding:10px 20px; border-radius:999px; font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'DM Sans'; }
+.btn-refresh:active { background:rgba(0,214,50,0.15); }
 
-/* ══════ WITHDRAW FORM ══════ */
-.filter-bar { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; align-items:center; }
-.filter-select { background:#111; border:1px solid rgba(255,255,255,0.09); color:#fff; padding:9px 13px; border-radius:11px; font-size:13px; font-family:'DM Sans',sans-serif; outline:none; cursor:pointer; font-weight:500; }
-.search-input { background:#111; border:1px solid rgba(255,255,255,0.09); color:#fff; padding:9px 13px; border-radius:11px; font-size:13px; font-family:'DM Sans',sans-serif; outline:none; flex:1; min-width:160px; font-weight:500; }
-.search-input:focus, .filter-select:focus { border-color:rgba(0,214,50,0.5); box-shadow:0 0 0 3px rgba(0,214,50,0.08); }
-.refresh-btn { background:rgba(0,214,50,0.09); border:1px solid rgba(0,214,50,0.28); color:#00D632; padding:9px 16px; border-radius:11px; font-size:13px; font-weight:800; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; white-space:nowrap; }
-.refresh-btn:hover:not(:disabled) { background:rgba(0,214,50,0.18); }
-.refresh-btn:disabled { opacity:0.6; cursor:not-allowed; }
+/* Main Content Box */
+.data-box { background:#111; border:1px solid rgba(255,255,255,0.05); border-radius:20px; padding:20px; min-height:200px; margin-bottom:30px; }
 
-/* ══════ TABLE ══════ */
-.table-wrap { background:#0d0d0d; border:1px solid rgba(255,255,255,0.07); border-radius:18px; overflow:hidden; }
-.table-scroll { overflow-x:auto; display:none; }
-@media (min-width:700px) { .table-scroll { display:block; } }
-table { width:100%; border-collapse:collapse; }
-thead th { background:#111; padding:12px 16px; text-align:left; font-size:10px; font-weight:700; color:rgba(255,255,255,0.35); text-transform:uppercase; letter-spacing:0.1em; white-space:nowrap; border-bottom:1px solid rgba(255,255,255,0.06); }
-tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.04); white-space:nowrap; }
-tbody tr:last-child td { border-bottom:none; }
-tbody tr:hover { background:rgba(255,255,255,0.02); }
+/* Copy Links Section */
+.link-scroll { display:flex; gap:12px; overflow-x:auto; padding-bottom:10px; margin-bottom:20px; }
+.link-scroll::-webkit-scrollbar { height:0; display:none; }
+.link-card { background:#1a1a1a; border:1px solid rgba(255,255,255,0.08); padding:16px; border-radius:14px; min-width:260px; flex-shrink:0; display:flex; justify-content:space-between; align-items:center; }
+.link-title { font-size:12px; font-weight:700; color:rgba(255,255,255,0.4); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px; }
+.link-url { font-size:13px; font-family:monospace; color:#00D632; overflow:hidden; text-overflow:ellipsis; max-width:160px; white-space:nowrap; }
+.btn-copy { background:#222; border:none; color:#fff; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; cursor:pointer; }
+.btn-copy:active { background:#333; }
 
-/* ══════ MOBILE CARDS ══════ */
-.mobile-list { display:block; }
-@media (min-width:700px) { .mobile-list { display:none; } }
-.m-card { padding:16px; border-bottom:1px solid rgba(255,255,255,0.05); transition:background 0.15s; }
-.m-card:last-child { border-bottom:none; }
-.m-row { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
-.m-left { flex:1; min-width:0; }
-.m-amount { font-size:20px; font-weight:800; color:#fff; letter-spacing:-0.5px; }
-.m-meta { display:flex; align-items:center; gap:8px; margin-top:10px; flex-wrap:wrap; width: 100%; }
-.m-empty { text-align:center; padding:48px 20px; color:rgba(255,255,255,0.28); font-size:14px; }
-.m-card-w { padding:16px; border-bottom:1px solid rgba(255,255,255,0.05); }
-.m-card-w:last-child { border-bottom:none; }
+/* List Items */
+.list-item { display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+.list-item:last-child { border-bottom:none; padding-bottom:0; }
+.list-left { display:flex; flex-direction:column; gap:6px; }
+.list-title { font-size:14px; font-weight:700; color:#fff; }
+.list-sub { font-size:12px; color:rgba(255,255,255,0.4); }
+.list-right { display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
+.list-amount { font-size:16px; font-weight:800; }
+.badge { padding:4px 10px; border-radius:6px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; }
+.badge-paid { background:rgba(0,214,50,0.15); color:#00D632; }
+.badge-pending { background:rgba(255,200,0,0.15); color:#ffc800; }
+.badge-method { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.8); }
 
-/* ══════ BADGES ══════ */
-.badge { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:700; text-transform:uppercase; }
-.badge.settled, .badge.completed, .badge.paid { background:rgba(0,214,50,0.12); border:1px solid rgba(0,214,50,0.28); color:#00D632; }
-.badge.new, .badge.pending { background:rgba(255,200,0,0.10); border:1px solid rgba(255,200,0,0.28); color:#ffc800; }
-.badge.expired { background:rgba(255,80,80,0.10); border:1px solid rgba(255,80,80,0.28); color:#ff5050; }
-.badge-dot { width:5px; height:5px; border-radius:50%; background:currentColor; flex-shrink:0; }
+/* Withdraw Form */
+.w-form { display:flex; flex-direction:column; gap:12px; }
+.w-input { background:#1a1a1a; border:1px solid rgba(255,255,255,0.1); color:#fff; padding:14px 16px; border-radius:12px; font-family:'DM Sans'; font-size:14px; outline:none; }
+.w-input:focus { border-color:#00D632; }
+.btn-submit { background:#00D632; color:#000; border:none; padding:16px; border-radius:12px; font-weight:800; font-size:15px; cursor:pointer; font-family:'DM Sans'; margin-top:5px; }
+.btn-submit:active { transform:scale(0.98); }
+.empty-state { text-align:center; padding:30px 10px; color:rgba(255,255,255,0.3); font-size:14px; }
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div class="topbar-logo">
-    <div class="topbar-icon">$</div>
+<div class="header">
+  <div class="header-left">
+    <div class="logo-icon">$</div>
     <div>
-      <div class="topbar-title">Creator Hub</div>
-      <div class="topbar-sub" id="userEmailDisplay">Loading...</div>
+      <div class="header-title">Creator Hub</div>
+      <div class="header-sub" id="userEmailDisplay">Loading...</div>
     </div>
   </div>
-  <button class="logout-btn" onclick="logoutUser()">Logout</button>
+  <button class="btn-logout" onclick="logoutUser()">Logout</button>
 </div>
 
 <div class="content">
-  
-  <!-- My Links Section -->
-  <div class="model-links-container" id="modelLinksContainer"></div>
 
-  <!-- Stats -->
   <div class="stats-grid">
-    <div class="stat-card green">
+    <div class="stat-card glow-green">
       <div class="stat-icon">💰</div>
       <div class="stat-label">Total Earned</div>
-      <div class="stat-val" id="statSettled">$0.00</div>
-      <div class="stat-sub" id="statSettledCount">0 payments</div>
+      <div class="stat-val val-green" id="statEarned">$0.00</div>
+      <div class="stat-sub" id="statEarnedCount">0 payments</div>
     </div>
-
     <div class="stat-card">
       <div class="stat-icon">🏦</div>
       <div class="stat-label">Available Balance</div>
-      <div class="stat-val" id="statAvailable" style="color:#00D632;">$0.00</div>
+      <div class="stat-val val-green" id="statAvailable">$0.00</div>
       <div class="stat-sub">Ready to withdraw</div>
     </div>
-
     <div class="stat-card">
       <div class="stat-icon">⏳</div>
       <div class="stat-label">Pending Payments</div>
-      <div class="stat-val" id="statPending" style="color:#ffc800;">0</div>
+      <div class="stat-val val-yellow" id="statPending">0</div>
       <div class="stat-sub">Awaiting confirmation</div>
     </div>
-    
     <div class="stat-card">
       <div class="stat-icon">💸</div>
       <div class="stat-label">Total Withdrawn</div>
-      <div class="stat-val" id="statWithdrawn" style="color:#ff4d4d;">$0.00</div>
-      <div class="stat-sub" id="statPendingWD">0 pending requests</div>
+      <div class="stat-val val-red" id="statWithdrawn">$0.00</div>
+      <div class="stat-sub" id="statWdCount">0 pending requests</div>
     </div>
   </div>
 
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('payments', this)">💳 My Income</button>
-    <button class="tab-btn" onclick="switchTab('withdrawals', this)">💸 Cashout</button>
+  <div class="tabs-container">
+    <button class="tab-btn active" onclick="switchTab('income', this)">💳 My Income</button>
+    <button class="tab-btn" onclick="switchTab('cashout', this)">💸 Cashout</button>
   </div>
 
-  <!-- PAYMENTS TAB -->
-  <div id="tab-payments">
-    <div class="filter-bar">
-      <button class="refresh-btn" onclick="loadData()">⟳ Refresh Data</button>
+  <div class="refresh-wrap">
+    <button class="btn-refresh" onclick="loadData()">⟳ Refresh Data</button>
+  </div>
+
+  <!-- INCOME TAB -->
+  <div id="tab-income">
+    <!-- Links Scroll -->
+    <div style="font-size:12px; font-weight:700; color:rgba(255,255,255,0.4); margin-bottom:10px; text-transform:uppercase; letter-spacing:1px;">Your Payment Links</div>
+    <div class="link-scroll" id="modelLinksContainer">
+      <div class="empty-state">Loading links...</div>
     </div>
-    <div class="table-wrap">
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Address / Source</th>
-              <th>Amount</th>
-              <th>Status</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody id="paymentsBody">
-            <tr><td colspan="5" class="m-empty">Loading...</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="mobile-list" id="mobilePaymentsList">
-        <div class="m-empty">Loading...</div>
-      </div>
+
+    <!-- Payments List -->
+    <div class="data-box" id="paymentsList">
+      <div class="empty-state">Loading transactions...</div>
     </div>
   </div>
 
-  <!-- WITHDRAWALS TAB -->
-  <div id="tab-withdrawals" style="display:none;">
-    <div class="filter-bar" style="justify-content:space-between;">
-      <div style="display:flex; gap:8px; flex-wrap:wrap; flex:1;">
-        <input type="number" id="wdAmount" class="search-input" placeholder="Amount ($)" style="max-width:100px;" min="5">
-        <select id="wdMethod" class="filter-select" style="min-width:120px;">
+  <!-- CASHOUT TAB -->
+  <div id="tab-cashout" style="display:none;">
+    <div class="data-box" style="margin-bottom:15px;">
+      <div style="font-size:16px; font-weight:700; margin-bottom:15px;">Request Withdrawal</div>
+      <div class="w-form">
+        <input type="number" id="wdAmount" class="w-input" placeholder="Amount (Min $5)" min="5">
+        <select id="wdMethod" class="w-input">
           <option value="bKash">bKash</option>
           <option value="Nagad">Nagad</option>
           <option value="Binance">Binance (USDT/BTC)</option>
           <option value="Bank">Bank Transfer</option>
         </select>
-        <input type="text" id="wdNote" class="search-input" placeholder="Account No / Details">
-        <button class="refresh-btn" id="wdBtn" onclick="submitWithdrawal()" style="background:rgba(0,214,50,0.15); border-color:rgba(0,214,50,0.4);">💳 Request Cashout</button>
+        <input type="text" id="wdNote" class="w-input" placeholder="Account Number / Wallet Address">
+        <button class="btn-submit" onclick="submitWithdrawal()">Submit Request</button>
       </div>
     </div>
 
-    <div class="table-wrap">
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Amount</th>
-              <th>Method & Note</th>
-              <th>Date</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="withdrawalsBody">
-            <tr><td colspan="5" class="m-empty">Loading...</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="mobile-list" id="mobileWithdrawalsList">
-        <div class="m-empty">Loading...</div>
-      </div>
+    <div class="data-box" id="withdrawalsList">
+      <div class="empty-state">Loading history...</div>
     </div>
   </div>
 
 </div>
 
 <script>
-// 🟢 FULL CODE WITH EMBEDDED KEYS
-const SUPABASE_URL = 'https://ohwzmxwsphsfzudmlins.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9od3pteHdzcGhzZnp1ZG1saW5zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMzE0MTksImV4cCI6MjEwMTYwNzQxOX0.frTl7qnDx7SK2IBMQxFCkKGe5u4XAQweRxPhQ-2r8rU';
-
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
 let currentUser = null;
 let allPayments = [];
 let allWithdrawals = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const { data: { session } } = await supabase.auth.getSession();
+  if (!window.newSupabase || !window.oldSupabase) {
+      alert("Database connection failed. Check config.js");
+      return;
+  }
+
+  const { data: { session } } = await window.newSupabase.auth.getSession();
   if (!session) {
     window.location.href = 'login.html';
     return;
   }
+  
   currentUser = session.user;
   document.getElementById('userEmailDisplay').textContent = currentUser.email;
   
@@ -236,7 +194,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 async function logoutUser() {
-  await supabase.auth.signOut();
+  await window.newSupabase.auth.signOut();
   window.location.href = 'login.html';
 }
 
@@ -247,189 +205,124 @@ async function loadData() {
   renderWithdrawals();
 }
 
+// 🟢 NEW DB: Fetch Models & Generate Custom Tracked Links
 async function fetchModels() {
-  const { data, error } = await supabase.from('models').select('*');
+  const { data, error } = await window.newSupabase.from('models').select('*').eq('owner_id', currentUser.id);
   const container = document.getElementById('modelLinksContainer');
   
   if (error || !data || data.length === 0) {
-    container.innerHTML = `<div style="padding:15px; background:rgba(255,200,0,0.1); color:#ffc800; border-radius:10px;">Models are being assigned. Please check back later.</div>`;
+    container.innerHTML = `<div class="empty-state">No models assigned yet. Contact admin.</div>`;
     return;
   }
 
-  // 🟢 Generate Payment Links with Custom Domain
   container.innerHTML = data.map(m => {
-    const link = `https://cpay-cash.app/${m.slug}`;
+    // 🟢 Magic Link with Tracking ID 🟢
+    const link = `https://cpay-cash.app/${m.slug}?ref=${currentUser.id}`;
     return `
-    <div class="model-link-box">
-      <div>
-        <div style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px;">Payment Link: ${m.model_name}</div>
-        <div class="model-link-text">${link}</div>
+      <div class="link-card">
+        <div>
+          <div class="link-title">${m.model_name}</div>
+          <div class="link-url">${link}</div>
+        </div>
+        <button class="btn-copy" onclick="copyToClipboard('${link}')">📋</button>
       </div>
-      <button class="copy-btn" onclick="copyToClipboard('${link}')">Copy Link</button>
-    </div>
-  `}).join('');
+    `;
+  }).join('');
 }
 
+// 🔴 OLD DB: Fetch Payments using the Tracking ID
 async function fetchPayments() {
-  const { data, error } = await supabase.from('payments').select('*').order('created_at', { ascending: false });
-  if (!error && data) {
-    const now = new Date();
-    allPayments = data.map(p => {
-      p._expireMins = (p.payment_type && p.payment_type.toLowerCase() === 'usdc') ? 15 : 60;
-      if (p.status === 'new' || p.status === 'pending') {
-        const diffMin = (now - new Date(p.created_at)) / 60000;
-        if (diffMin > p._expireMins) p._uiExpired = true;
-      }
-      return p;
-    });
-  }
+  const { data, error } = await window.oldSupabase
+    .from('payments')
+    .select('*')
+    .eq('member_id', currentUser.id) // Only fetch payments that matched this user's ref ID
+    .order('created_at', { ascending: false });
+    
+  if (!error && data) allPayments = data;
 }
 
+// 🟢 NEW DB: Fetch Withdrawals
 async function fetchWithdrawals() {
-  const { data, error } = await supabase.from('withdrawals').select('*').order('created_at', { ascending: false });
+  const { data, error } = await window.newSupabase
+    .from('withdrawals')
+    .select('*')
+    .eq('owner_id', currentUser.id)
+    .order('created_at', { ascending: false });
+    
   if (!error && data) allWithdrawals = data;
 }
 
 function calculateStats() {
-  let totalSettled = 0, settledCount = 0, pendingCount = 0;
-  
+  let earned = 0, earnedCount = 0, pending = 0;
   allPayments.forEach(p => {
-    let es = p.status;
-    if (p._uiExpired) es = 'expired';
-
-    if (es === 'settled' || es === 'paid' || es === 'completed') {
-      totalSettled += parseFloat(p.amount || 0);
-      settledCount++;
-    } else if (es === 'pending' || es === 'new') {
-      pendingCount++;
+    if (p.status === 'settled' || p.status === 'paid' || p.status === 'completed') {
+      earned += parseFloat(p.amount || 0); earnedCount++;
+    } else if (p.status === 'pending' || p.status === 'new') {
+      pending += parseFloat(p.amount || 0); // Displaying pending dollar amount
     }
   });
 
-  let totalWithdrawnAndPending = 0, wdPendingCount = 0;
+  let withdrawn = 0, wdPendingCount = 0;
   allWithdrawals.forEach(w => {
-    totalWithdrawnAndPending += parseFloat(w.amount || 0);
+    withdrawn += parseFloat(w.amount || 0); 
     if (w.status === 'pending') wdPendingCount++;
   });
 
-  const available = totalSettled - totalWithdrawnAndPending;
+  const available = earned - withdrawn;
 
-  document.getElementById('statSettled').textContent = '$' + totalSettled.toFixed(2);
-  document.getElementById('statSettledCount').textContent = settledCount + ' payments';
-  document.getElementById('statPending').textContent = pendingCount;
-  
+  document.getElementById('statEarned').textContent = '$' + earned.toFixed(2);
+  document.getElementById('statEarnedCount').textContent = earnedCount + ' payments';
+  document.getElementById('statPending').textContent = '$' + pending.toFixed(2);
   document.getElementById('statAvailable').textContent = '$' + Math.max(0, available).toFixed(2);
-  document.getElementById('statWithdrawn').textContent = '$' + totalWithdrawnAndPending.toFixed(2);
-  document.getElementById('statPendingWD').textContent = wdPendingCount + ' pending requests';
+  document.getElementById('statWithdrawn').textContent = '$' + withdrawn.toFixed(2);
+  document.getElementById('statWdCount').textContent = wdPendingCount + ' pending requests';
 }
 
 function renderPayments() {
-  const tbody = document.getElementById('paymentsBody');
-  const mList = document.getElementById('mobilePaymentsList');
+  const container = document.getElementById('paymentsList');
+  if (!allPayments.length) { container.innerHTML = '<div class="empty-state">No payment records found</div>'; return; }
 
-  if (!allPayments.length) {
-    tbody.innerHTML = '<tr><td colspan="5" class="m-empty">No income history yet</td></tr>';
-    mList.innerHTML = '<div class="m-empty">No income history yet</div>';
-    return;
-  }
-
-  const generateHtml = (p, index) => {
-    let es = p.status; if (p._uiExpired) es = 'expired';
-    const fullAddress = p.payment_request || p.wallet_address || p.invoice_id || 'Unknown';
-    let displayAddress = fullAddress.length > 20 ? fullAddress.substring(0, 8) + '...' + fullAddress.substring(fullAddress.length - 8) : fullAddress;
-    const methodStr = p.payment_type ? p.payment_type.toUpperCase() : 'LIGHTNING';
-    const methodColor = methodStr === 'USDC' ? '#00D632' : (methodStr === 'ONCHAIN' ? '#f7931a' : '#ffc400');
-    const explorerUrl = `https://mempool.space/search?q=${fullAddress}`;
-
-    return {
-      desktop: `<tr>
-        <td style="color:rgba(255,255,255,0.28);">${index + 1}</td>
-        <td>
-           <a href="${explorerUrl}" target="_blank" style="color:#64b4ff; text-decoration:none; font-family:monospace;">${displayAddress}</a>
-           <div style="margin-top:4px;"><span style="font-size:9px;font-weight:700;color:${methodColor};background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px;">${methodStr}</span></div>
-        </td>
-        <td style="font-weight:800;color:#fff;font-size:15px;">$${parseFloat(p.amount||0).toFixed(2)}</td>
-        <td><span class="badge ${es}"><span class="badge-dot"></span>${es}</span></td>
-        <td style="color:rgba(255,255,255,0.4);font-size:12px;">${new Date(p.created_at).toLocaleString()}</td>
-      </tr>`,
-      mobile: `<div class="m-card">
-        <div class="m-row">
-          <div class="m-left">
-            <a href="${explorerUrl}" target="_blank" style="color:#64b4ff; text-decoration:none; font-family:monospace; font-size:13px;">${displayAddress}</a>
-            <div style="margin-top:6px;"><span style="font-size:9px;font-weight:700;color:${methodColor};background:rgba(255,255,255,0.05);padding:3px 6px;border-radius:4px;">${methodStr}</span></div>
-            <div class="m-time" style="margin-top:6px;">${new Date(p.created_at).toLocaleString()}</div>
-          </div>
-          <div style="text-align:right;">
-            <div class="m-amount">$${parseFloat(p.amount||0).toFixed(2)}</div>
-            <div style="margin-top:4px;"><span class="badge ${es}"><span class="badge-dot"></span>${es}</span></div>
+  container.innerHTML = allPayments.map(p => {
+    const isPaid = (p.status === 'settled' || p.status === 'paid' || p.status === 'completed');
+    const method = p.payment_type ? p.payment_type.toUpperCase() : 'CRYPTO';
+    return `
+      <div class="list-item">
+        <div class="list-left">
+          <div class="list-title">Payment Received</div>
+          <div style="display:flex; gap:6px; margin-top:4px;">
+            <span class="badge badge-method">${method}</span>
+            <span class="list-sub">${new Date(p.created_at).toLocaleDateString()}</span>
           </div>
         </div>
-      </div>`
-    };
-  };
-
-  let dHtml = '', mHtml = '';
-  allPayments.forEach((p, i) => {
-    const html = generateHtml(p, i);
-    dHtml += html.desktop;
-    mHtml += html.mobile;
-  });
-
-  tbody.innerHTML = dHtml;
-  mList.innerHTML = mHtml;
+        <div class="list-right">
+          <div class="list-amount" style="color:#00D632;">+$${parseFloat(p.amount||0).toFixed(2)}</div>
+          <span class="badge ${isPaid ? 'badge-paid' : 'badge-pending'}">${isPaid ? 'Settled' : 'Pending'}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 function renderWithdrawals() {
-  const tbody = document.getElementById('withdrawalsBody');
-  const mList = document.getElementById('mobileWithdrawalsList');
+  const container = document.getElementById('withdrawalsList');
+  if (!allWithdrawals.length) { container.innerHTML = '<div class="empty-state">No withdrawal history</div>'; return; }
 
-  if (!allWithdrawals.length) {
-    tbody.innerHTML = '<tr><td colspan="5" class="m-empty">No withdrawal requests</td></tr>';
-    mList.innerHTML = '<div class="m-empty">No withdrawal requests</div>';
-    return;
-  }
-
-  const generateHtml = (w, index) => {
-    const methodStyle = w.method === 'Binance' ? '#f3ba2f' : (w.method === 'bKash' ? '#e2136e' : (w.method === 'Nagad' ? '#f76a20' : '#00D632'));
-    const isCompleted = w.status === 'completed' || w.status === 'paid';
-    
-    return {
-      desktop: `<tr>
-        <td style="color:rgba(255,255,255,0.28);">${index + 1}</td>
-        <td style="font-weight:800;color:#ff4d4d;font-size:15px;">-$${parseFloat(w.amount||0).toFixed(2)}</td>
-        <td>
-          <span style="background:${methodStyle}20; color:${methodStyle}; padding:3px 6px; border-radius:4px; font-size:10px; font-weight:bold;">${w.method}</span>
-          <span style="color:rgba(255,255,255,0.7); margin-left:6px;">${w.note || '-'}</span>
-        </td>
-        <td style="color:rgba(255,255,255,0.4);font-size:12px;">${new Date(w.created_at).toLocaleString()}</td>
-        <td><span class="badge ${isCompleted ? 'completed' : 'pending'}"><span class="badge-dot"></span>${isCompleted ? 'Paid' : 'Pending'}</span></td>
-      </tr>`,
-      mobile: `<div class="m-card-w">
-        <div class="m-row">
-          <div class="m-left">
-            <div class="m-amount" style="color:#ff4d4d;">-$${parseFloat(w.amount||0).toFixed(2)}</div>
-            <div style="margin-top:6px;">
-               <span style="background:${methodStyle}20; color:${methodStyle}; padding:3px 6px; border-radius:4px; font-size:10px; font-weight:bold;">${w.method}</span>
-               <span style="color:rgba(255,255,255,0.6); font-size:12px; margin-left:6px;">${w.note || 'No note'}</span>
-            </div>
-            <div style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:8px;">${new Date(w.created_at).toLocaleString()}</div>
-          </div>
-          <div style="display:flex;align-items:flex-end;">
-            <span class="badge ${isCompleted ? 'completed' : 'pending'}"><span class="badge-dot"></span>${isCompleted ? 'Paid' : 'Pending'}</span>
-          </div>
+  container.innerHTML = allWithdrawals.map(w => {
+    const isPaid = w.status === 'completed';
+    return `
+      <div class="list-item">
+        <div class="list-left">
+          <div class="list-title">Cashout (${w.method})</div>
+          <div class="list-sub">${w.note || 'Bank Transfer'}</div>
+          <div class="list-sub" style="margin-top:2px;">${new Date(w.created_at).toLocaleDateString()}</div>
         </div>
-      </div>`
-    };
-  };
-
-  let dHtml = '', mHtml = '';
-  allWithdrawals.forEach((w, i) => {
-    const html = generateHtml(w, i);
-    dHtml += html.desktop;
-    mHtml += html.mobile;
-  });
-
-  tbody.innerHTML = dHtml;
-  mList.innerHTML = mHtml;
+        <div class="list-right">
+          <div class="list-amount" style="color:#ff5050;">-$${parseFloat(w.amount||0).toFixed(2)}</div>
+          <span class="badge ${isPaid ? 'badge-paid' : 'badge-pending'}">${isPaid ? 'Paid' : 'Pending'}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 async function submitWithdrawal() {
@@ -437,48 +330,35 @@ async function submitWithdrawal() {
   const method = document.getElementById('wdMethod').value;
   const note = document.getElementById('wdNote').value.trim();
   const available = parseFloat(document.getElementById('statAvailable').textContent.replace('$', ''));
-  const btn = document.getElementById('wdBtn');
 
   if (!amt || amt < 5) return alert("Minimum withdrawal is $5");
-  if (!note) return alert("Please enter your account details");
-  if (amt > available) return alert("Insufficient available balance!");
+  if (!note) return alert("Please enter account details");
+  if (amt > available) return alert("Insufficient balance!");
 
-  btn.disabled = true;
-  btn.textContent = "Processing...";
-
-  const { error } = await supabase.from('withdrawals').insert({
-    owner_id: currentUser.id,
-    amount: amt,
-    method: method,
-    note: note,
-    status: 'pending'
+  const { error } = await window.newSupabase.from('withdrawals').insert({
+    owner_id: currentUser.id, amount: amt, method: method, note: note, status: 'pending'
   });
 
-  if (error) {
-    alert("Error submitting request: " + error.message);
-  } else {
-    alert("Withdrawal request sent successfully!");
+  if (error) alert("Error: " + error.message);
+  else {
+    alert("Cashout request submitted!");
     document.getElementById('wdAmount').value = '';
     document.getElementById('wdNote').value = '';
     loadData();
   }
-  
-  btn.disabled = false;
-  btn.textContent = "💳 Request Cashout";
 }
 
 function switchTab(tab, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('tab-payments').style.display = tab==='payments' ? 'block' : 'none';
-  document.getElementById('tab-withdrawals').style.display = tab==='withdrawals' ? 'block' : 'none';
+  document.getElementById('tab-income').style.display = tab==='income' ? 'block' : 'none';
+  document.getElementById('tab-cashout').style.display = tab==='cashout' ? 'block' : 'none';
 }
 
 function copyToClipboard(text) {
   navigator.clipboard.writeText(text);
-  alert("Link copied!");
+  alert("Link copied successfully!");
 }
 </script>
 </body>
 </html>
-
