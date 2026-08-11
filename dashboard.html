@@ -1,204 +1,487 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Creator Dashboard</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Supabase CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creator Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet">
+<!-- Supabase CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { font-family:'DM Sans',sans-serif; background:#000; color:#fff; min-height:100vh; }
+
+/* ══════ TOPBAR ══════ */
+.topbar { background:rgba(10,10,10,0.95); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-bottom:1px solid rgba(255,255,255,0.06); padding:13px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+.topbar-logo { display:flex; align-items:center; gap:10px; }
+.topbar-icon { width:36px; height:36px; background:linear-gradient(135deg,#00D632,#00903c); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:900; color:#fff; box-shadow:0 3px 12px rgba(0,214,50,0.35); }
+.topbar-title { font-size:16px; font-weight:800; letter-spacing:-0.2px; }
+.topbar-sub { font-size:11px; color:rgba(255,255,255,0.3); font-weight:500; }
+.logout-btn { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); color:rgba(255,255,255,0.55); padding:7px 15px; border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
+.logout-btn:hover { background:rgba(255,80,80,0.12); border-color:rgba(255,80,80,0.3); color:#ff6b6b; }
+
+.content { padding:20px; max-width:1200px; margin:0 auto; }
+
+/* ══════ MODEL LINKS SECTION ══════ */
+.model-links-container { display:flex; flex-direction:column; gap:12px; margin-bottom:24px; }
+.model-link-box { background:rgba(0,214,50,0.05); border:1px dashed rgba(0,214,50,0.3); padding:16px; border-radius:14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;}
+.model-link-text { font-family:monospace; font-size:14px; color:#00D632; word-break:break-all; margin-top:4px;}
+.copy-btn { background:#00D632; color:#000; border:none; padding:8px 16px; border-radius:8px; font-weight:800; cursor:pointer; font-size:12px; font-family:'DM Sans'; transition: transform 0.1s;}
+.copy-btn:active { transform:scale(0.95); }
+
+/* ══════ STAT CARDS ══════ */
+.stats-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:24px; }
+@media (min-width:640px) { .stats-grid { grid-template-columns:repeat(4,1fr); gap:14px; } }
+.stat-card { background:#0d0d0d; border:1px solid rgba(255,255,255,0.07); border-radius:18px; padding:18px 16px; position:relative; overflow:hidden; }
+.stat-card::before { content:''; position:absolute; top:0; right:0; width:60px; height:60px; border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%); transform:translate(20px,-20px); }
+.stat-card.green { border-color:rgba(0,214,50,0.18); background:linear-gradient(135deg,#0d0d0d,#0a1a0f); }
+.stat-card.green::before { background:radial-gradient(circle, rgba(0,214,50,0.08) 0%, transparent 70%); }
+.stat-icon { font-size:20px; margin-bottom:10px; }
+.stat-label { font-size:10px; color:rgba(255,255,255,0.38); text-transform:uppercase; letter-spacing:0.12em; font-weight:700; margin-bottom:6px; }
+.stat-val { font-size:24px; font-weight:800; color:#fff; letter-spacing:-0.5px; line-height:1; }
+.stat-card.green .stat-val { color:#00D632; }
+.stat-sub { font-size:11px; color:rgba(255,255,255,0.28); margin-top:5px; font-weight:500; }
+
+/* ══════ TABS ══════ */
+.tabs { display:flex; gap:8px; margin-bottom:18px; }
+.tab-btn { background:#111; border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.45); padding:9px 18px; border-radius:11px; font-size:13px; font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.22s; flex:1; text-align:center; }
+@media (min-width:480px) { .tab-btn { flex:none; } }
+.tab-btn.active { background:rgba(0,214,50,0.12); border-color:rgba(0,214,50,0.3); color:#00D632; }
+
+/* ══════ WITHDRAW FORM ══════ */
+.filter-bar { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; align-items:center; }
+.filter-select { background:#111; border:1px solid rgba(255,255,255,0.09); color:#fff; padding:9px 13px; border-radius:11px; font-size:13px; font-family:'DM Sans',sans-serif; outline:none; cursor:pointer; font-weight:500; }
+.search-input { background:#111; border:1px solid rgba(255,255,255,0.09); color:#fff; padding:9px 13px; border-radius:11px; font-size:13px; font-family:'DM Sans',sans-serif; outline:none; flex:1; min-width:160px; font-weight:500; }
+.search-input:focus, .filter-select:focus { border-color:rgba(0,214,50,0.5); box-shadow:0 0 0 3px rgba(0,214,50,0.08); }
+.refresh-btn { background:rgba(0,214,50,0.09); border:1px solid rgba(0,214,50,0.28); color:#00D632; padding:9px 16px; border-radius:11px; font-size:13px; font-weight:800; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; white-space:nowrap; }
+.refresh-btn:hover:not(:disabled) { background:rgba(0,214,50,0.18); }
+.refresh-btn:disabled { opacity:0.6; cursor:not-allowed; }
+
+/* ══════ TABLE ══════ */
+.table-wrap { background:#0d0d0d; border:1px solid rgba(255,255,255,0.07); border-radius:18px; overflow:hidden; }
+.table-scroll { overflow-x:auto; display:none; }
+@media (min-width:700px) { .table-scroll { display:block; } }
+table { width:100%; border-collapse:collapse; }
+thead th { background:#111; padding:12px 16px; text-align:left; font-size:10px; font-weight:700; color:rgba(255,255,255,0.35); text-transform:uppercase; letter-spacing:0.1em; white-space:nowrap; border-bottom:1px solid rgba(255,255,255,0.06); }
+tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.04); white-space:nowrap; }
+tbody tr:last-child td { border-bottom:none; }
+tbody tr:hover { background:rgba(255,255,255,0.02); }
+
+/* ══════ MOBILE CARDS ══════ */
+.mobile-list { display:block; }
+@media (min-width:700px) { .mobile-list { display:none; } }
+.m-card { padding:16px; border-bottom:1px solid rgba(255,255,255,0.05); transition:background 0.15s; }
+.m-card:last-child { border-bottom:none; }
+.m-row { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+.m-left { flex:1; min-width:0; }
+.m-amount { font-size:20px; font-weight:800; color:#fff; letter-spacing:-0.5px; }
+.m-meta { display:flex; align-items:center; gap:8px; margin-top:10px; flex-wrap:wrap; width: 100%; }
+.m-pill { font-size:11px; color:rgba(255,255,255,0.35); background:rgba(255,255,255,0.05); padding:3px 9px; border-radius:999px; font-weight:600; }
+.m-expire { font-size:12px; color:rgba(255,200,0,0.85); font-weight:700; background:rgba(255,200,0,0.07); padding:3px 9px; border-radius:999px; }
+.m-expired-pill { font-size:12px; color:#ff5050; font-weight:700; background:rgba(255,80,80,0.07); padding:3px 9px; border-radius:999px; }
+.m-empty { text-align:center; padding:48px 20px; color:rgba(255,255,255,0.28); font-size:14px; }
+.m-card-w { padding:16px; border-bottom:1px solid rgba(255,255,255,0.05); }
+.m-card-w:last-child { border-bottom:none; }
+
+/* ══════ BADGES ══════ */
+.badge { display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:700; text-transform:uppercase; }
+.badge.settled, .badge.completed, .badge.paid { background:rgba(0,214,50,0.12); border:1px solid rgba(0,214,50,0.28); color:#00D632; }
+.badge.new, .badge.pending { background:rgba(255,200,0,0.10); border:1px solid rgba(255,200,0,0.28); color:#ffc800; }
+.badge.expired { background:rgba(255,80,80,0.10); border:1px solid rgba(255,80,80,0.28); color:#ff5050; }
+.badge.processing { background:rgba(100,180,255,0.10); border:1px solid rgba(100,180,255,0.28); color:#64b4ff; }
+.badge-dot { width:5px; height:5px; border-radius:50%; background:currentColor; flex-shrink:0; }
+</style>
 </head>
 <body>
 
-    <!-- Top App Bar -->
-    <header class="top-bar">
-        <h1 id="page-title">Dashboard</h1>
-        <div class="user-info">
-            <span id="user-email-display" class="text-xs text-muted">Loading...</span>
-        </div>
-    </header>
+<div class="topbar">
+  <div class="topbar-logo">
+    <div class="topbar-icon">$</div>
+    <div>
+      <div class="topbar-title">Creator Hub</div>
+      <div class="topbar-sub" id="userEmailDisplay">Loading...</div>
+    </div>
+  </div>
+  <button class="logout-btn" onclick="logoutUser()">Logout</button>
+</div>
 
-    <!-- Global Notice Banner (Controlled by Admin) -->
-    <div id="notice-banner" class="notice-banner" style="display: none;">
-        <i class="fa-solid fa-bullhorn"></i> <span id="notice-text"></span>
+<div class="content">
+  
+  <!-- My Links Section -->
+  <div class="model-links-container" id="modelLinksContainer"></div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card green">
+      <div class="stat-icon">💰</div>
+      <div class="stat-label">Total Earned</div>
+      <div class="stat-val" id="statSettled">$0.00</div>
+      <div class="stat-sub" id="statSettledCount">0 payments</div>
     </div>
 
-    <!-- Main Content Area -->
-    <main class="content-area">
-        
-        <!-- ========================================== -->
-        <!-- 1. DASHBOARD TAB -->
-        <!-- ========================================== -->
-        <section id="dashboard" class="tab-content active">
-            
-            <!-- Balance Card -->
-            <div class="card balance-card">
-                <p class="text-sm opacity-80 uppercase tracking-wide">Available Balance</p>
-                <h2 id="display-balance" class="balance-amount">$0.00</h2>
-                <p class="text-xs opacity-90 mt-1">Today rate (per USD): <strong id="display-exchange-rate">118 TK</strong></p>
-                
-                <div class="balance-stats">
-                    <div class="stat-item">
-                        <span class="text-xs opacity-80">Pending</span>
-                        <div id="display-pending" class="text-sm font-bold">$0.00</div>
-                    </div>
-                    <div class="stat-item">
-                        <span class="text-xs opacity-80">Total Paid</span>
-                        <div id="display-paid" class="text-sm font-bold">$0.00</div>
-                    </div>
-                    <div class="stat-item">
-                        <span class="text-xs opacity-80">Withdrawn</span>
-                        <div id="display-withdrawn" class="text-sm font-bold">$0.00</div>
-                    </div>
-                </div>
+    <div class="stat-card">
+      <div class="stat-icon">🏦</div>
+      <div class="stat-label">Available Balance</div>
+      <div class="stat-val" id="statAvailable" style="color:#00D632;">$0.00</div>
+      <div class="stat-sub">Ready to withdraw</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">⏳</div>
+      <div class="stat-label">Pending Payments</div>
+      <div class="stat-val" id="statPending" style="color:#ffc800;">0</div>
+      <div class="stat-sub">Awaiting confirmation</div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">💸</div>
+      <div class="stat-label">Total Withdrawn</div>
+      <div class="stat-val" id="statWithdrawn" style="color:#ff4d4d;">$0.00</div>
+      <div class="stat-sub" id="statPendingWD">0 pending requests</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('payments', this)">💳 My Income</button>
+    <button class="tab-btn" onclick="switchTab('withdrawals', this)">💸 Cashout</button>
+  </div>
+
+  <!-- PAYMENTS TAB -->
+  <div id="tab-payments">
+    <div class="filter-bar">
+      <button class="refresh-btn" onclick="loadData()">⟳ Refresh Data</button>
+    </div>
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Address / Source</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="paymentsBody">
+            <tr><td colspan="5" class="m-empty">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mobile-list" id="mobilePaymentsList">
+        <div class="m-empty">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WITHDRAWALS TAB -->
+  <div id="tab-withdrawals" style="display:none;">
+    <div class="filter-bar" style="justify-content:space-between;">
+      <div style="display:flex; gap:8px; flex-wrap:wrap; flex:1;">
+        <input type="number" id="wdAmount" class="search-input" placeholder="Amount ($)" style="max-width:100px;" min="5">
+        <select id="wdMethod" class="filter-select" style="min-width:120px;">
+          <option value="bKash">bKash</option>
+          <option value="Nagad">Nagad</option>
+          <option value="Binance">Binance (USDT/BTC)</option>
+          <option value="Bank">Bank Transfer</option>
+        </select>
+        <input type="text" id="wdNote" class="search-input" placeholder="Account No / Details">
+        <button class="refresh-btn" id="wdBtn" onclick="submitWithdrawal()" style="background:rgba(0,214,50,0.15); border-color:rgba(0,214,50,0.4);">💳 Request Cashout</button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Amount</th>
+              <th>Method & Note</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="withdrawalsBody">
+            <tr><td colspan="5" class="m-empty">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mobile-list" id="mobileWithdrawalsList">
+        <div class="m-empty">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// 🟢 SUPABASE CONFIGURATION (আপনার আসল API Key বসান)
+const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
+const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+let allPayments = [];
+let allWithdrawals = [];
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    window.location.href = 'login.html'; // Redirect if not logged in
+    return;
+  }
+  currentUser = session.user;
+  document.getElementById('userEmailDisplay').textContent = currentUser.email;
+  
+  loadData();
+});
+
+async function logoutUser() {
+  await supabase.auth.signOut();
+  window.location.href = 'login.html';
+}
+
+async function loadData() {
+  await Promise.all([fetchModels(), fetchPayments(), fetchWithdrawals()]);
+  calculateStats();
+  renderPayments();
+  renderWithdrawals();
+}
+
+async function fetchModels() {
+  const { data, error } = await supabase.from('models').select('*');
+  const container = document.getElementById('modelLinksContainer');
+  
+  if (error || !data || data.length === 0) {
+    container.innerHTML = `<div style="padding:15px; background:rgba(255,200,0,0.1); color:#ffc800; border-radius:10px;">Models are being assigned. Please check back later.</div>`;
+    return;
+  }
+
+  // Generate Payment Links (Update the base URL to match your GitHub Pages URL)
+  container.innerHTML = data.map(m => {
+    const link = `https://parvezmosharaf2023.github.io/cashapp/${m.slug}`;
+    return `
+    <div class="model-link-box">
+      <div>
+        <div style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px;">Payment Link: ${m.model_name}</div>
+        <div class="model-link-text">${link}</div>
+      </div>
+      <button class="copy-btn" onclick="copyToClipboard('${link}')">Copy Link</button>
+    </div>
+  `}).join('');
+}
+
+async function fetchPayments() {
+  const { data, error } = await supabase.from('payments').select('*').order('created_at', { ascending: false });
+  if (!error && data) {
+    const now = new Date();
+    allPayments = data.map(p => {
+      p._expireMins = (p.payment_type && p.payment_type.toLowerCase() === 'usdc') ? 15 : 60;
+      if (p.status === 'new' || p.status === 'pending') {
+        const diffMin = (now - new Date(p.created_at)) / 60000;
+        if (diffMin > p._expireMins) p._uiExpired = true;
+      }
+      return p;
+    });
+  }
+}
+
+async function fetchWithdrawals() {
+  const { data, error } = await supabase.from('withdrawals').select('*').order('created_at', { ascending: false });
+  if (!error && data) allWithdrawals = data;
+}
+
+function calculateStats() {
+  let totalSettled = 0, settledCount = 0, pendingCount = 0;
+  
+  allPayments.forEach(p => {
+    let es = p.status;
+    if (p._uiExpired) es = 'expired';
+
+    if (es === 'settled' || es === 'paid' || es === 'completed') {
+      totalSettled += parseFloat(p.amount || 0);
+      settledCount++;
+    } else if (es === 'pending' || es === 'new') {
+      pendingCount++;
+    }
+  });
+
+  let totalWithdrawnAndPending = 0, wdPendingCount = 0;
+  allWithdrawals.forEach(w => {
+    totalWithdrawnAndPending += parseFloat(w.amount || 0); // Both pending and paid are deducted from available
+    if (w.status === 'pending') wdPendingCount++;
+  });
+
+  const available = totalSettled - totalWithdrawnAndPending;
+
+  document.getElementById('statSettled').textContent = '$' + totalSettled.toFixed(2);
+  document.getElementById('statSettledCount').textContent = settledCount + ' payments';
+  document.getElementById('statPending').textContent = pendingCount;
+  
+  document.getElementById('statAvailable').textContent = '$' + Math.max(0, available).toFixed(2);
+  document.getElementById('statWithdrawn').textContent = '$' + totalWithdrawnAndPending.toFixed(2);
+  document.getElementById('statPendingWD').textContent = wdPendingCount + ' pending requests';
+}
+
+function renderPayments() {
+  const tbody = document.getElementById('paymentsBody');
+  const mList = document.getElementById('mobilePaymentsList');
+
+  if (!allPayments.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="m-empty">No income history yet</td></tr>';
+    mList.innerHTML = '<div class="m-empty">No income history yet</div>';
+    return;
+  }
+
+  const generateHtml = (p, index) => {
+    let es = p.status; if (p._uiExpired) es = 'expired';
+    const fullAddress = p.payment_request || p.wallet_address || p.invoice_id || 'Unknown';
+    let displayAddress = fullAddress.length > 20 ? fullAddress.substring(0, 8) + '...' + fullAddress.substring(fullAddress.length - 8) : fullAddress;
+    const methodStr = p.payment_type ? p.payment_type.toUpperCase() : 'LIGHTNING';
+    const methodColor = methodStr === 'USDC' ? '#00D632' : (methodStr === 'ONCHAIN' ? '#f7931a' : '#ffc400');
+    const explorerUrl = `https://mempool.space/search?q=${fullAddress}`;
+
+    return {
+      desktop: `<tr>
+        <td style="color:rgba(255,255,255,0.28);">${index + 1}</td>
+        <td>
+           <a href="${explorerUrl}" target="_blank" style="color:#64b4ff; text-decoration:none; font-family:monospace;">${displayAddress}</a>
+           <div style="margin-top:4px;"><span style="font-size:9px;font-weight:700;color:${methodColor};background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px;">${methodStr}</span></div>
+        </td>
+        <td style="font-weight:800;color:#fff;font-size:15px;">$${parseFloat(p.amount||0).toFixed(2)}</td>
+        <td><span class="badge ${es}"><span class="badge-dot"></span>${es}</span></td>
+        <td style="color:rgba(255,255,255,0.4);font-size:12px;">${new Date(p.created_at).toLocaleString()}</td>
+      </tr>`,
+      mobile: `<div class="m-card">
+        <div class="m-row">
+          <div class="m-left">
+            <a href="${explorerUrl}" target="_blank" style="color:#64b4ff; text-decoration:none; font-family:monospace; font-size:13px;">${displayAddress}</a>
+            <div style="margin-top:6px;"><span style="font-size:9px;font-weight:700;color:${methodColor};background:rgba(255,255,255,0.05);padding:3px 6px;border-radius:4px;">${methodStr}</span></div>
+            <div class="m-time" style="margin-top:6px;">${new Date(p.created_at).toLocaleString()}</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="m-amount">$${parseFloat(p.amount||0).toFixed(2)}</div>
+            <div style="margin-top:4px;"><span class="badge ${es}"><span class="badge-dot"></span>${es}</span></div>
+          </div>
+        </div>
+      </div>`
+    };
+  };
+
+  let dHtml = '', mHtml = '';
+  allPayments.forEach((p, i) => {
+    const html = generateHtml(p, i);
+    dHtml += html.desktop;
+    mHtml += html.mobile;
+  });
+
+  tbody.innerHTML = dHtml;
+  mList.innerHTML = mHtml;
+}
+
+function renderWithdrawals() {
+  const tbody = document.getElementById('withdrawalsBody');
+  const mList = document.getElementById('mobileWithdrawalsList');
+
+  if (!allWithdrawals.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="m-empty">No withdrawal requests</td></tr>';
+    mList.innerHTML = '<div class="m-empty">No withdrawal requests</div>';
+    return;
+  }
+
+  const generateHtml = (w, index) => {
+    const methodStyle = w.method === 'Binance' ? '#f3ba2f' : (w.method === 'bKash' ? '#e2136e' : (w.method === 'Nagad' ? '#f76a20' : '#00D632'));
+    const isCompleted = w.status === 'completed' || w.status === 'paid';
+    
+    return {
+      desktop: `<tr>
+        <td style="color:rgba(255,255,255,0.28);">${index + 1}</td>
+        <td style="font-weight:800;color:#ff4d4d;font-size:15px;">-$${parseFloat(w.amount||0).toFixed(2)}</td>
+        <td>
+          <span style="background:${methodStyle}20; color:${methodStyle}; padding:3px 6px; border-radius:4px; font-size:10px; font-weight:bold;">${w.method}</span>
+          <span style="color:rgba(255,255,255,0.7); margin-left:6px;">${w.note || '-'}</span>
+        </td>
+        <td style="color:rgba(255,255,255,0.4);font-size:12px;">${new Date(w.created_at).toLocaleString()}</td>
+        <td><span class="badge ${isCompleted ? 'completed' : 'pending'}"><span class="badge-dot"></span>${isCompleted ? 'Paid' : 'Pending'}</span></td>
+      </tr>`,
+      mobile: `<div class="m-card-w">
+        <div class="m-row">
+          <div class="m-left">
+            <div class="m-amount" style="color:#ff4d4d;">-$${parseFloat(w.amount||0).toFixed(2)}</div>
+            <div style="margin-top:6px;">
+               <span style="background:${methodStyle}20; color:${methodStyle}; padding:3px 6px; border-radius:4px; font-size:10px; font-weight:bold;">${w.method}</span>
+               <span style="color:rgba(255,255,255,0.6); font-size:12px; margin-left:6px;">${w.note || 'No note'}</span>
             </div>
+            <div style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:8px;">${new Date(w.created_at).toLocaleString()}</div>
+          </div>
+          <div style="display:flex;align-items:flex-end;">
+            <span class="badge ${isCompleted ? 'completed' : 'pending'}"><span class="badge-dot"></span>${isCompleted ? 'Paid' : 'Pending'}</span>
+          </div>
+        </div>
+      </div>`
+    };
+  };
 
-            <!-- Public Pay Links Card -->
-            <div class="card">
-                <div class="card-header">
-                    <span class="label">PUBLIC PAY LINKS</span>
-                    <div class="domain-selector">
-                        <span class="label">DOMAIN</span>
-                        <select id="domain-select" class="custom-select">
-                            <option value="pay-cash.app">pay-cash.app</option>
-                            <option value="onecox.org" selected>onecox.org</option>
-                            <option value="cash2pay.app">cash2pay.app</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="link-list">
-                    <div class="link-item bg-light p-3 rounded">
-                        <span class="link-text text-green font-mono" id="primary-pay-link">Loading link...</span>
-                        <button class="icon-btn text-green" onclick="copyPayLink()" title="Copy Link">
-                            <i class="fa-solid fa-copy"></i>
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="card-actions mt-4">
-                    <a href="create-model.html" class="btn btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
-                        Create Model
-                    </a>
-                    <button class="btn btn-outline" onclick="switchTab('payments')">All transactions</button>
-                </div>
-            </div>
+  let dHtml = '', mHtml = '';
+  allWithdrawals.forEach((w, i) => {
+    const html = generateHtml(w, i);
+    dHtml += html.desktop;
+    mHtml += html.mobile;
+  });
 
-            <!-- Recent Payments Card -->
-            <div class="card">
-                <div class="card-header">
-                    <span class="label">RECENT PAYMENTS</span>
-                </div>
-                <div id="recent-payments-list" class="transaction-list">
-                    <!-- Skeleton Loader -->
-                    <div class="skeleton-row"></div>
-                    <div class="skeleton-row"></div>
-                </div>
-            </div>
-        </section>
+  tbody.innerHTML = dHtml;
+  mList.innerHTML = mHtml;
+}
 
-        <!-- ========================================== -->
-        <!-- 2. PAYMENTS TAB -->
-        <!-- ========================================== -->
-        <section id="payments" class="tab-content">
-            <div class="card">
-                <h3 class="card-title mb-3">All Payments</h3>
-                <div id="all-payments-list" class="transaction-list">
-                    <p class="text-muted text-sm py-2">Loading payments history...</p>
-                </div>
-            </div>
-        </section>
-        
-        <!-- ========================================== -->
-        <!-- 3. WITHDRAWALS TAB -->
-        <!-- ========================================== -->
-        <section id="withdrawals" class="tab-content">
-            <div class="card">
-                <h3 class="card-title text-center mb-4">Request withdrawal</h3>
-                <div class="bg-light p-3 rounded mb-4 text-center">
-                    <span class="text-sm text-muted">Available balance: </span>
-                    <strong class="text-xl" id="withdraw-available-balance">$0.00</strong>
-                </div>
+async function submitWithdrawal() {
+  const amt = parseFloat(document.getElementById('wdAmount').value);
+  const method = document.getElementById('wdMethod').value;
+  const note = document.getElementById('wdNote').value.trim();
+  const available = parseFloat(document.getElementById('statAvailable').textContent.replace('$', ''));
+  const btn = document.getElementById('wdBtn');
 
-                <form id="withdrawal-form">
-                    <div class="input-wrapper mb-3">
-                        <label class="label mb-1 block">Amount (USD)</label>
-                        <div class="input-group">
-                            <span class="input-prefix">$</span>
-                            <input type="number" id="withdraw-amount" class="input-field" placeholder="0.00" min="1" step="0.01" required>
-                        </div>
-                        <p class="text-xs text-muted mt-1">Between $1 and maximum available balance. Finalized upon submit.</p>
-                    </div>
+  if (!amt || amt < 5) return alert("Minimum withdrawal is $5");
+  if (!note) return alert("Please enter your account details");
+  if (amt > available) return alert("Insufficient available balance!");
 
-                    <div class="input-wrapper mb-3">
-                        <label class="label mb-1 block">Payout method</label>
-                        <input type="text" id="withdraw-method" class="form-input" placeholder="e.g. Bank transfer, bKash, Nagad" required>
-                    </div>
+  btn.disabled = true;
+  btn.textContent = "Processing...";
 
-                    <div class="input-wrapper mb-3">
-                        <label class="label mb-1 block">Payout details</label>
-                        <textarea id="withdraw-details" class="form-textarea" placeholder="Account name, account number, mobile wallet number, routing/IBAN... whatever the admin needs." required></textarea>
-                    </div>
-                    
-                    <div class="input-wrapper mb-4">
-                        <label class="label mb-1 block">Note (optional)</label>
-                        <textarea id="withdraw-note" class="form-textarea" placeholder="Any message for admin"></textarea>
-                    </div>
+  const { error } = await supabase.from('withdrawals').insert({
+    owner_id: currentUser.id,
+    amount: amt,
+    method: method,
+    note: note,
+    status: 'pending'
+  });
 
-                    <div class="card-actions">
-                        <button type="submit" id="btn-submit-withdraw" class="btn btn-primary">Submit request</button>
-                        <button type="button" class="btn btn-outline" onclick="document.getElementById('withdrawal-form').reset()">Clear</button>
-                    </div>
-                </form>
-            </div>
+  if (error) {
+    alert("Error submitting request: " + error.message);
+  } else {
+    alert("Withdrawal request sent successfully!");
+    document.getElementById('wdAmount').value = '';
+    document.getElementById('wdNote').value = '';
+    loadData();
+  }
+  
+  btn.disabled = false;
+  btn.textContent = "💳 Request Cashout";
+}
 
-            <!-- Withdrawals History -->
-            <div class="card bg-light mt-3">
-                <h3 class="card-title mb-2">Your withdrawals</h3>
-                <p class="text-xs text-muted mb-3">Pending, paid, and rejected requests (newest first).</p>
-                <div id="withdrawal-history-list" class="transaction-list">
-                    <p class="text-muted text-sm py-2">No withdrawal requests yet.</p>
-                </div>
-            </div>
-        </section>
-        
-        <!-- ========================================== -->
-        <!-- 4. PROFILE TAB -->
-        <!-- ========================================== -->
-        <section id="profile" class="tab-content">
-            <div class="card text-center">
-                <div class="avatar-circle mb-3"><i class="fa-solid fa-user text-3xl text-green"></i></div>
-                <h3 class="card-title" id="profile-name">Creator</h3>
-                <p class="text-muted text-sm mb-4" id="profile-email"></p>
-                
-                <button class="btn btn-outline text-red-500 w-full" onclick="logoutUser()">
-                    <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Log out
-                </button>
-            </div>
-        </section>
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-payments').style.display = tab==='payments' ? 'block' : 'none';
+  document.getElementById('tab-withdrawals').style.display = tab==='withdrawals' ? 'block' : 'none';
+}
 
-    </main>
-
-    <!-- Bottom Navigation -->
-    <nav class="bottom-nav">
-        <a href="#" class="nav-item active" data-target="dashboard">
-            <i class="fa-solid fa-border-all"></i><span>Dashboard</span>
-        </a>
-        <a href="#" class="nav-item" data-target="payments">
-            <i class="fa-solid fa-money-bill-wave"></i><span>Payments</span>
-        </a>
-        <a href="#" class="nav-item" data-target="withdrawals">
-            <i class="fa-solid fa-building-columns"></i><span>Withdrawals</span>
-        </a>
-        <a href="#" class="nav-item" data-target="profile">
-            <i class="fa-regular fa-user"></i><span>Profile</span>
-        </a>
-    </nav>
-
-    <!-- Configuration & Logic -->
-    <script src="assets/js/config.js"></script>
-    <script src="assets/js/dashboard.js"></script>
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text);
+  alert("Link copied!");
+}
+</script>
 </body>
 </html>
