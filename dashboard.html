@@ -77,9 +77,6 @@ tbody tr:hover { background:rgba(255,255,255,0.02); }
 .m-left { flex:1; min-width:0; }
 .m-amount { font-size:20px; font-weight:800; color:#fff; letter-spacing:-0.5px; }
 .m-meta { display:flex; align-items:center; gap:8px; margin-top:10px; flex-wrap:wrap; width: 100%; }
-.m-pill { font-size:11px; color:rgba(255,255,255,0.35); background:rgba(255,255,255,0.05); padding:3px 9px; border-radius:999px; font-weight:600; }
-.m-expire { font-size:12px; color:rgba(255,200,0,0.85); font-weight:700; background:rgba(255,200,0,0.07); padding:3px 9px; border-radius:999px; }
-.m-expired-pill { font-size:12px; color:#ff5050; font-weight:700; background:rgba(255,80,80,0.07); padding:3px 9px; border-radius:999px; }
 .m-empty { text-align:center; padding:48px 20px; color:rgba(255,255,255,0.28); font-size:14px; }
 .m-card-w { padding:16px; border-bottom:1px solid rgba(255,255,255,0.05); }
 .m-card-w:last-child { border-bottom:none; }
@@ -89,7 +86,6 @@ tbody tr:hover { background:rgba(255,255,255,0.02); }
 .badge.settled, .badge.completed, .badge.paid { background:rgba(0,214,50,0.12); border:1px solid rgba(0,214,50,0.28); color:#00D632; }
 .badge.new, .badge.pending { background:rgba(255,200,0,0.10); border:1px solid rgba(255,200,0,0.28); color:#ffc800; }
 .badge.expired { background:rgba(255,80,80,0.10); border:1px solid rgba(255,80,80,0.28); color:#ff5050; }
-.badge.processing { background:rgba(100,180,255,0.10); border:1px solid rgba(100,180,255,0.28); color:#64b4ff; }
 .badge-dot { width:5px; height:5px; border-radius:50%; background:currentColor; flex-shrink:0; }
 </style>
 </head>
@@ -217,9 +213,9 @@ tbody tr:hover { background:rgba(255,255,255,0.02); }
 </div>
 
 <script>
-// 🟢 SUPABASE CONFIGURATION (আপনার আসল API Key বসান)
-const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+// 🟢 FULL CODE WITH EMBEDDED KEYS
+const SUPABASE_URL = 'https://ohwzmxwsphsfzudmlins.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9od3pteHdzcGhzZnp1ZG1saW5zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMzE0MTksImV4cCI6MjEwMTYwNzQxOX0.frTl7qnDx7SK2IBMQxFCkKGe5u4XAQweRxPhQ-2r8rU';
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -230,7 +226,7 @@ let allWithdrawals = [];
 document.addEventListener("DOMContentLoaded", async () => {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) {
-    window.location.href = 'login.html'; // Redirect if not logged in
+    window.location.href = 'login.html';
     return;
   }
   currentUser = session.user;
@@ -260,9 +256,9 @@ async function fetchModels() {
     return;
   }
 
-  // Generate Payment Links (Update the base URL to match your GitHub Pages URL)
+  // 🟢 Generate Payment Links with Custom Domain
   container.innerHTML = data.map(m => {
-    const link = `https://parvezmosharaf2023.github.io/cashapp/${m.slug}`;
+    const link = `https://cpay-cash.app/${m.slug}`;
     return `
     <div class="model-link-box">
       <div>
@@ -311,7 +307,7 @@ function calculateStats() {
 
   let totalWithdrawnAndPending = 0, wdPendingCount = 0;
   allWithdrawals.forEach(w => {
-    totalWithdrawnAndPending += parseFloat(w.amount || 0); // Both pending and paid are deducted from available
+    totalWithdrawnAndPending += parseFloat(w.amount || 0);
     if (w.status === 'pending') wdPendingCount++;
   });
 
