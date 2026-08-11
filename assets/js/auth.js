@@ -100,23 +100,29 @@ document.addEventListener("DOMContentLoaded", async () => {
                     status: 'active'
                 });
 
-                // 3. AUTO-ASSIGN DEFAULT MODELS
-                // এখানে আপনার রানিং মডেলগুলোর নাম এবং স্লাগ (slug) দিন
+                // 3. AUTO-ASSIGN DEFAULT MODELS (From your GitHub repo)
                 const defaultModels = [
+                    { name: 'Crystal', slug: 'Crystal' },
+                    { name: 'Linda', slug: 'Linda' },
+                    { name: 'LoveMe', slug: 'LoveMe' },
+                    { name: 'Night Queen', slug: 'NightQueen' },
+                    { name: 'Red Rose', slug: 'RedRose' },
+                    { name: 'Rose', slug: 'Rose' },
+                    { name: 'Sophia', slug: 'Sophia' },
                     { name: 'Beauty Girl', slug: 'beauty-girl' },
-                    { name: 'Sophia', slug: 'sophia' },
-                    { name: 'Red Rose', slug: 'red-rose' },
-                    { name: 'Cute Queen', slug: 'cute-queen' }
+                    { name: 'Beauty Queen', slug: 'beauty-queen' },
+                    { name: 'Cute Queen', slug: 'cute-queen' },
+                    { name: 'Emma', slug: 'emma' },
+                    { name: 'Horny Queen', slug: 'horny-queen' }
                 ];
 
                 const modelsToInsert = defaultModels.map(model => ({
                     owner_id: userId,
                     model_name: model.name,
-                    slug: model.slug, // Frontend will use this slug to generate the payment link
+                    slug: model.slug,
                     status: 'active'
                 }));
 
-                // Insert all default models into the database for this new user
                 const { error: modelError } = await window.supabase.from('models').insert(modelsToInsert);
 
                 if (modelError) {
