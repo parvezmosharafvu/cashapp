@@ -5,17 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Creator Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet">
-<!-- Supabase CDN -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- Config File (Contains Keys) -->
 <script src="assets/js/config.js"></script>
 
 <style>
-/* ====== EXACT MATCH DARK THEME FROM YOUR IMAGE ====== */
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 body { font-family:'DM Sans',sans-serif; background:#050505; color:#fff; min-height:100vh; padding-bottom: 40px; }
 
-/* Header */
+/* ====== Header ====== */
 .header { display:flex; align-items:center; justify-content:space-between; padding:20px; position:sticky; top:0; background:rgba(5,5,5,0.9); backdrop-filter:blur(10px); z-index:100; border-bottom:1px solid rgba(255,255,255,0.05); }
 .header-left { display:flex; align-items:center; gap:12px; }
 .logo-icon { width:40px; height:40px; background:#00D632; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:900; color:#000; box-shadow:0 0 15px rgba(0,214,50,0.4); }
@@ -26,8 +23,30 @@ body { font-family:'DM Sans',sans-serif; background:#050505; color:#fff; min-hei
 
 .content { padding:0 20px; max-width:800px; margin:0 auto; }
 
-/* Grid Cards */
-.stats-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:15px; margin-top:10px; margin-bottom:20px; }
+/* ====== Notice Banner ====== */
+.notice-banner { background:rgba(255,200,0,0.1); border:1px solid rgba(255,200,0,0.3); border-radius:14px; padding:12px 18px; margin-top:20px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; transition:all 0.2s; }
+.notice-banner:hover { background:rgba(255,200,0,0.15); transform:translateY(-2px); }
+.notice-left { display:flex; align-items:center; gap:10px; }
+.notice-icon { font-size:20px; animation:bellRing 2s infinite; display:inline-block; }
+.notice-text { font-size:13px; font-weight:700; color:#ffc800; letter-spacing:0.3px; }
+.notice-arrow { font-size:16px; color:#ffc800; font-weight:bold; }
+@keyframes bellRing { 0%, 100% { transform:rotate(0); } 10%, 30%, 50% { transform:rotate(-15deg); } 20%, 40% { transform:rotate(15deg); } 60% { transform:rotate(0); } }
+
+/* ====== Notice Modal ====== */
+.modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter:blur(8px); z-index:1000; display:none; align-items:center; justify-content:center; padding:20px; }
+.modal-content { background:#111; border:1px solid rgba(0,214,50,0.3); border-radius:24px; width:100%; max-width:420px; padding:24px; box-shadow:0 20px 80px rgba(0,0,0,0.9); position:relative; animation:modalPop 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes modalPop { 0% { opacity:0; transform:scale(0.8); } 100% { opacity:1; transform:scale(1); } }
+.modal-header { display:flex; align-items:center; gap:10px; margin-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:15px; }
+.modal-title { font-size:18px; font-weight:800; color:#00D632; }
+.modal-close { position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.05); border:none; width:32px; height:32px; border-radius:50%; color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:0.2s; }
+.modal-close:hover { background:rgba(255,80,80,0.2); color:#ff5050; }
+.modal-body { font-size:14px; line-height:1.6; color:rgba(255,255,255,0.8); }
+.rate-box { background:rgba(255,255,255,0.05); padding:12px; border-radius:10px; margin:15px 0; border:1px dashed rgba(255,255,255,0.15); }
+.rate-row { display:flex; justify-content:space-between; margin-bottom:8px; font-weight:600; }
+.rate-row:last-child { margin-bottom:0; }
+
+/* ====== Grid Cards ====== */
+.stats-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:15px; margin-top:20px; margin-bottom:20px; }
 .stat-card { background:#111; border:1px solid rgba(255,255,255,0.05); border-radius:16px; padding:20px; position:relative; overflow:hidden; }
 .stat-card.glow-green { background:radial-gradient(circle at top right, rgba(0,214,50,0.08) 0%, #111 70%); border-color:rgba(0,214,50,0.15); }
 .stat-icon { font-size:22px; margin-bottom:12px; }
@@ -38,20 +57,28 @@ body { font-family:'DM Sans',sans-serif; background:#050505; color:#fff; min-hei
 .val-red { color:#ff5050; }
 .stat-sub { font-size:11px; color:rgba(255,255,255,0.3); margin-top:8px; font-weight:500; }
 
-/* Tabs & Action Buttons */
+/* ====== Tabs & Action Buttons ====== */
 .tabs-container { display:flex; gap:10px; margin-bottom:15px; }
 .tab-btn { flex:1; background:#111; border:1px solid rgba(255,255,255,0.05); color:rgba(255,255,255,0.5); padding:14px; border-radius:12px; font-size:14px; font-weight:700; cursor:pointer; font-family:'DM Sans'; display:flex; align-items:center; justify-content:center; gap:8px; transition:all 0.2s; }
 .tab-btn.active { background:rgba(0,214,50,0.05); border-color:rgba(0,214,50,0.3); color:#00D632; }
 
 .refresh-wrap { margin-bottom:20px; display:inline-block; }
 .btn-refresh { background:rgba(0,214,50,0.05); border:1px solid rgba(0,214,50,0.3); color:#00D632; padding:10px 20px; border-radius:999px; font-size:13px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; font-family:'DM Sans'; }
-.btn-refresh:active { background:rgba(0,214,50,0.15); }
 
-/* Main Content Box */
-.data-box { background:#111; border:1px solid rgba(255,255,255,0.05); border-radius:20px; padding:20px; min-height:200px; margin-bottom:30px; }
+/* ====== Main Content Box ====== */
+.data-box { background:#111; border:1px solid rgba(255,255,255,0.05); border-radius:20px; padding:20px; min-height:150px; margin-bottom:20px; }
 
-/* Copy Links Section */
-.link-scroll { display:flex; gap:12px; overflow-x:auto; padding-bottom:10px; margin-bottom:20px; }
+/* ====== Form Inputs ====== */
+.w-form { display:flex; flex-direction:column; gap:12px; }
+.w-row { display:flex; gap:10px; }
+.w-input { background:#1a1a1a; border:1px solid rgba(255,255,255,0.1); color:#fff; padding:14px 16px; border-radius:12px; font-family:'DM Sans'; font-size:14px; outline:none; flex:1; }
+.w-input:focus { border-color:#00D632; }
+.btn-submit { background:#00D632; color:#000; border:none; padding:14px 20px; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer; font-family:'DM Sans'; transition:0.2s; white-space:nowrap; }
+.btn-submit:active:not(:disabled) { transform:scale(0.98); }
+.btn-submit:disabled { opacity:0.6; cursor:not-allowed; }
+
+/* ====== Copy Links Section ====== */
+.link-scroll { display:flex; gap:12px; overflow-x:auto; padding-bottom:10px; margin-top:15px; }
 .link-scroll::-webkit-scrollbar { height:0; display:none; }
 .link-card { background:#1a1a1a; border:1px solid rgba(255,255,255,0.08); padding:16px; border-radius:14px; min-width:260px; flex-shrink:0; display:flex; justify-content:space-between; align-items:center; }
 .link-title { font-size:12px; font-weight:700; color:rgba(255,255,255,0.4); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px; }
@@ -59,7 +86,7 @@ body { font-family:'DM Sans',sans-serif; background:#050505; color:#fff; min-hei
 .btn-copy { background:#222; border:none; color:#fff; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; cursor:pointer; }
 .btn-copy:active { background:#333; }
 
-/* List Items */
+/* ====== List Items ====== */
 .list-item { display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
 .list-item:last-child { border-bottom:none; padding-bottom:0; }
 .list-left { display:flex; flex-direction:column; gap:6px; }
@@ -71,13 +98,6 @@ body { font-family:'DM Sans',sans-serif; background:#050505; color:#fff; min-hei
 .badge-paid { background:rgba(0,214,50,0.15); color:#00D632; }
 .badge-pending { background:rgba(255,200,0,0.15); color:#ffc800; }
 .badge-method { background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.8); }
-
-/* Withdraw Form */
-.w-form { display:flex; flex-direction:column; gap:12px; }
-.w-input { background:#1a1a1a; border:1px solid rgba(255,255,255,0.1); color:#fff; padding:14px 16px; border-radius:12px; font-family:'DM Sans'; font-size:14px; outline:none; }
-.w-input:focus { border-color:#00D632; }
-.btn-submit { background:#00D632; color:#000; border:none; padding:16px; border-radius:12px; font-weight:800; font-size:15px; cursor:pointer; font-family:'DM Sans'; margin-top:5px; }
-.btn-submit:active { transform:scale(0.98); }
 .empty-state { text-align:center; padding:30px 10px; color:rgba(255,255,255,0.3); font-size:14px; }
 </style>
 </head>
@@ -95,6 +115,15 @@ body { font-family:'DM Sans',sans-serif; background:#050505; color:#fff; min-hei
 </div>
 
 <div class="content">
+
+  <!-- 🟢 Notice Banner 🟢 -->
+  <div class="notice-banner" onclick="openNoticeModal()">
+    <div class="notice-left">
+      <span class="notice-icon">🔔</span>
+      <span class="notice-text">Important: Update on Payout Rates</span>
+    </div>
+    <div class="notice-arrow">→</div>
+  </div>
 
   <div class="stats-grid">
     <div class="stat-card glow-green">
@@ -124,7 +153,7 @@ body { font-family:'DM Sans',sans-serif; background:#050505; color:#fff; min-hei
   </div>
 
   <div class="tabs-container">
-    <button class="tab-btn active" onclick="switchTab('income', this)">💳 My Income</button>
+    <button class="tab-btn active" onclick="switchTab('income', this)">💳 My Income & Models</button>
     <button class="tab-btn" onclick="switchTab('cashout', this)">💸 Cashout</button>
   </div>
 
@@ -132,12 +161,23 @@ body { font-family:'DM Sans',sans-serif; background:#050505; color:#fff; min-hei
     <button class="btn-refresh" onclick="loadData()">⟳ Refresh Data</button>
   </div>
 
-  <!-- INCOME TAB -->
+  <!-- INCOME & MODELS TAB -->
   <div id="tab-income">
-    <!-- Links Scroll -->
-    <div style="font-size:12px; font-weight:700; color:rgba(255,255,255,0.4); margin-bottom:10px; text-transform:uppercase; letter-spacing:1px;">Your Payment Links</div>
-    <div class="link-scroll" id="modelLinksContainer">
-      <div class="empty-state">Loading links...</div>
+    
+    <!-- Model Creation Box -->
+    <div class="data-box">
+      <div style="display:flex; justify-content:space-between; margin-bottom:15px; align-items:center;">
+        <div style="font-size:16px; font-weight:700;">Claim New Model</div>
+        <div style="font-size:12px; color:#ffc800; font-weight:700;">Limit: <span id="modelLimitCount">0</span>/10</div>
+      </div>
+      <div class="w-row">
+        <input type="text" id="modelNameInput" class="w-input" placeholder="Enter desired model name (e.g. Sweet Girl)">
+        <button class="btn-submit" id="createModelBtn" onclick="createModel()">Claim</button>
+      </div>
+      <div style="font-size:11px; color:rgba(255,255,255,0.4); margin-top:8px;">*Once claimed, this unique link becomes yours forever.</div>
+      
+      <!-- Created Models List -->
+      <div class="link-scroll" id="modelLinksContainer"></div>
     </div>
 
     <!-- Payments List -->
@@ -170,10 +210,35 @@ body { font-family:'DM Sans',sans-serif; background:#050505; color:#fff; min-hei
 
 </div>
 
+<!-- 🟢 Notice Modal 🟢 -->
+<div class="modal-overlay" id="noticeModal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeNoticeModal()">✕</button>
+    <div class="modal-header">
+      <span style="font-size:24px;">🔔</span>
+      <div class="modal-title">Important Updates</div>
+    </div>
+    <div class="modal-body">
+      <!-- আপনি এখানে আপনার রেট বা নোটিশের তথ্য আপডেট করতে পারবেন -->
+      <p style="margin-bottom:15px;">Dear Creators, please review the latest updates regarding our platform's withdrawal processing and current exchange rates.</p>
+      
+      <div class="rate-box">
+        <div class="rate-row"><span>USDT/Crypto Rate:</span> <span style="color:#00D632;">$1 = 125 BDT</span></div>
+        <div class="rate-row"><span>bKash/Nagad Rate:</span> <span style="color:#00D632;">$1 = 120 BDT</span></div>
+      </div>
+      
+      <p style="margin-bottom:10px;">• Minimum withdrawal amount is $5.</p>
+      <p style="margin-bottom:10px;">• Cashout requests are processed within 1-6 hours.</p>
+      <p style="color:#ffc800; font-weight:700; margin-top:20px;">* Ensure your wallet address or phone number is 100% correct before requesting cashout.</p>
+    </div>
+  </div>
+</div>
+
 <script>
 let currentUser = null;
 let allPayments = [];
 let allWithdrawals = [];
+let userModelsCount = 0;
 
 document.addEventListener("DOMContentLoaded", async () => {
   if (!window.newSupabase || !window.oldSupabase) {
@@ -182,16 +247,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   const { data: { session } } = await window.newSupabase.auth.getSession();
-  if (!session) {
-    window.location.href = 'login.html';
-    return;
-  }
+  if (!session) { window.location.href = 'login.html'; return; }
   
   currentUser = session.user;
   document.getElementById('userEmailDisplay').textContent = currentUser.email;
   
   loadData();
 });
+
+// Modal Logic
+function openNoticeModal() { document.getElementById('noticeModal').style.display = 'flex'; }
+function closeNoticeModal() { document.getElementById('noticeModal').style.display = 'none'; }
 
 async function logoutUser() {
   await window.newSupabase.auth.signOut();
@@ -205,34 +271,27 @@ async function loadData() {
   renderWithdrawals();
 }
 
-// 🟢 NEW: Generate Custom Tracked Links Instantly (No DB required for this)
+// 🟢 NEW DB: Fetch Models & Render Links
 async function fetchModels() {
+  const { data, error } = await window.newSupabase.from('models').select('*').eq('owner_id', currentUser.id).order('created_at', { ascending: false });
   const container = document.getElementById('modelLinksContainer');
   
-  // আপনার রানিং সিস্টেমের সবগুলো মডেলের লিস্ট (সরাসরি গিটহাব ফোল্ডার অনুযায়ী)
-  const defaultModels = [
-      { name: 'Crystal', slug: 'Crystal' },
-      { name: 'Linda', slug: 'Linda' },
-      { name: 'LoveMe', slug: 'LoveMe' },
-      { name: 'Night Queen', slug: 'NightQueen' },
-      { name: 'Red Rose', slug: 'RedRose' },
-      { name: 'Rose', slug: 'Rose' },
-      { name: 'Sophia', slug: 'Sophia' },
-      { name: 'Beauty Girl', slug: 'beauty-girl' },
-      { name: 'Beauty Queen', slug: 'beauty-queen' },
-      { name: 'Cute Queen', slug: 'cute-queen' },
-      { name: 'Emma', slug: 'emma' },
-      { name: 'Horny Queen', slug: 'horny-queen' }
-  ];
+  if (error || !data || data.length === 0) {
+    userModelsCount = 0;
+    document.getElementById('modelLimitCount').textContent = '0';
+    container.innerHTML = `<div class="empty-state" style="padding:10px;">No models claimed yet.</div>`;
+    return;
+  }
 
-  container.innerHTML = defaultModels.map(m => {
-    // 🟢 Magic Link with Tracking ID 🟢
-    const link = `https://cpay-cash.app/${m.slug}?ref=${currentUser.id}`;
-    
+  userModelsCount = data.length;
+  document.getElementById('modelLimitCount').textContent = userModelsCount;
+
+  container.innerHTML = data.map(m => {
+    const link = `https://cpay-cash.app/${m.slug}`;
     return `
       <div class="link-card">
         <div>
-          <div class="link-title">${m.name}</div>
+          <div class="link-title">${m.model_name}</div>
           <div class="link-url">${link}</div>
         </div>
         <button class="btn-copy" onclick="copyToClipboard('${link}')">📋</button>
@@ -241,12 +300,93 @@ async function fetchModels() {
   }).join('');
 }
 
-// 🔴 OLD DB: Fetch Payments using the Tracking ID
+// 🟢 NEW DB: Create Custom Model & Auto-Generate Preview Image 🟢
+async function createModel() {
+  if (userModelsCount >= 10) return alert("You have reached the maximum limit of 10 models.");
+  
+  const input = document.getElementById('modelNameInput');
+  const name = input.value.trim();
+  const btn = document.getElementById('createModelBtn');
+  
+  if (!name) return alert("Please enter a model name.");
+  
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+  const firstLetter = name.charAt(0).toUpperCase();
+
+  btn.disabled = true; 
+  btn.textContent = "Making Image...";
+
+  try {
+    // Step 1: SVG to PNG Conversion
+    const svgCode = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+      <rect width="1200" height="630" fill="#00D632" />
+      <circle cx="180" cy="40" r="110" fill="#4052FF" />
+      <text x="180" y="72" font-size="90" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="bold" fill="#ffffff" text-anchor="middle">${firstLetter}</text>
+      <rect x="1000" y="-50" width="130" height="130" rx="30" fill="#000000" />
+      <text x="1065" y="46" font-size="90" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="bold" fill="#00D632" text-anchor="middle">$</text>
+      <text x="60" y="560" font-size="150" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="bold" letter-spacing="-5" fill="#000000">${name}</text>
+    </svg>`;
+
+    const blob = new Blob([svgCode], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    
+    const pngBlob = await new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1200; canvas.height = 630;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        canvas.toBlob(resolve, 'image/png');
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+
+    btn.textContent = "Uploading...";
+
+    // Step 2: Upload to Supabase Storage
+    const { data: uploadData, error: uploadError } = await window.newSupabase.storage
+        .from('previews')
+        .upload(`${slug}.png`, pngBlob, { cacheControl: '3600', upsert: true });
+
+    if (uploadError) throw uploadError;
+
+    const publicUrl = window.newSupabase.storage.from('previews').getPublicUrl(`${slug}.png`).data.publicUrl;
+
+    btn.textContent = "Saving Model...";
+
+    // Step 3: Insert into Database
+    const { error: dbError } = await window.newSupabase.from('models').insert({
+      owner_id: currentUser.id,
+      model_name: name,
+      slug: slug,
+      preview_url: publicUrl,
+      status: 'active'
+    });
+
+    if (dbError) {
+      if (dbError.code === '23505') throw new Error("This name is already taken! Try another.");
+      throw dbError;
+    }
+
+    input.value = '';
+    alert("✅ Model & Preview Image created successfully!");
+    fetchModels(); 
+  } catch (err) {
+    alert("❌ Error: " + err.message);
+  }
+  
+  btn.disabled = false; 
+  btn.textContent = "Claim";
+}
+
+// 🔴 OLD DB: Fetch Payments
 async function fetchPayments() {
   const { data, error } = await window.oldSupabase
     .from('payments')
     .select('*')
-    .eq('member_id', currentUser.id) // Only fetch payments that matched this user's ref ID
+    .eq('member_id', currentUser.id) 
     .order('created_at', { ascending: false });
     
   if (!error && data) allPayments = data;
@@ -269,7 +409,7 @@ function calculateStats() {
     if (p.status === 'settled' || p.status === 'paid' || p.status === 'completed') {
       earned += parseFloat(p.amount || 0); earnedCount++;
     } else if (p.status === 'pending' || p.status === 'new') {
-      pending += parseFloat(p.amount || 0); // Displaying pending dollar amount
+      pending += parseFloat(p.amount || 0);
     }
   });
 
@@ -373,3 +513,4 @@ function copyToClipboard(text) {
 </script>
 </body>
 </html>
+
