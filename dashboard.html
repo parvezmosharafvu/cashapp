@@ -205,23 +205,34 @@ async function loadData() {
   renderWithdrawals();
 }
 
-// 🟢 NEW DB: Fetch Models & Generate Custom Tracked Links
+// 🟢 NEW: Generate Custom Tracked Links Instantly (No DB required for this)
 async function fetchModels() {
-  const { data, error } = await window.newSupabase.from('models').select('*').eq('owner_id', currentUser.id);
   const container = document.getElementById('modelLinksContainer');
   
-  if (error || !data || data.length === 0) {
-    container.innerHTML = `<div class="empty-state">No models assigned yet. Contact admin.</div>`;
-    return;
-  }
+  // আপনার রানিং সিস্টেমের সবগুলো মডেলের লিস্ট (সরাসরি গিটহাব ফোল্ডার অনুযায়ী)
+  const defaultModels = [
+      { name: 'Crystal', slug: 'Crystal' },
+      { name: 'Linda', slug: 'Linda' },
+      { name: 'LoveMe', slug: 'LoveMe' },
+      { name: 'Night Queen', slug: 'NightQueen' },
+      { name: 'Red Rose', slug: 'RedRose' },
+      { name: 'Rose', slug: 'Rose' },
+      { name: 'Sophia', slug: 'Sophia' },
+      { name: 'Beauty Girl', slug: 'beauty-girl' },
+      { name: 'Beauty Queen', slug: 'beauty-queen' },
+      { name: 'Cute Queen', slug: 'cute-queen' },
+      { name: 'Emma', slug: 'emma' },
+      { name: 'Horny Queen', slug: 'horny-queen' }
+  ];
 
-  container.innerHTML = data.map(m => {
+  container.innerHTML = defaultModels.map(m => {
     // 🟢 Magic Link with Tracking ID 🟢
     const link = `https://cpay-cash.app/${m.slug}?ref=${currentUser.id}`;
+    
     return `
       <div class="link-card">
         <div>
-          <div class="link-title">${m.model_name}</div>
+          <div class="link-title">${m.name}</div>
           <div class="link-url">${link}</div>
         </div>
         <button class="btn-copy" onclick="copyToClipboard('${link}')">📋</button>
