@@ -102,6 +102,15 @@ body { font-family:'DM Sans',sans-serif; background:#050505; color:#fff; min-hei
 
 <div class="content">
 
+  <!-- 🟢 Notice Banner 🟢 -->
+  <div class="notice-banner" onclick="openNoticeModal()" style="background:rgba(255,200,0,0.1); border:1px solid rgba(255,200,0,0.3); border-radius:14px; padding:12px 18px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; cursor:pointer;">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <span style="font-size:20px;">🔔</span>
+      <span style="font-size:13px; font-weight:700; color:#ffc800;">Important: Update on Payout Rates</span>
+    </div>
+    <div style="font-size:16px; color:#ffc800; font-weight:bold;">→</div>
+  </div>
+
   <div class="stats-grid">
     <div class="stat-card glow-green">
       <div class="stat-icon">💰</div>
@@ -206,6 +215,27 @@ body { font-family:'DM Sans',sans-serif; background:#050505; color:#fff; min-hei
 
 </div>
 
+<!-- 🟢 Notice Modal 🟢 -->
+<div class="modal-overlay" id="noticeModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter:blur(8px); z-index:1000; display:none; align-items:center; justify-content:center; padding:20px;">
+  <div class="modal-content" style="background:#111; border:1px solid rgba(0,214,50,0.3); border-radius:24px; width:100%; max-width:420px; padding:24px; position:relative;">
+    <button class="modal-close" onclick="closeNoticeModal()" style="position:absolute; top:20px; right:20px; background:none; border:none; color:#fff; font-size:20px; cursor:pointer;">✕</button>
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:15px;">
+      <span style="font-size:24px;">🔔</span>
+      <div style="font-size:18px; font-weight:800; color:#00D632;">Important Updates</div>
+    </div>
+    <div style="font-size:14px; line-height:1.6; color:rgba(255,255,255,0.8);">
+      <p style="margin-bottom:15px;">Dear Creators, please review the latest updates regarding our platform's withdrawal processing and current exchange rates.</p>
+      <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:10px; margin:15px 0; border:1px dashed rgba(255,255,255,0.15);">
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-weight:600;"><span>USDT/Crypto Rate:</span> <span style="color:#00D632;">$1 = 125 BDT</span></div>
+        <div style="display:flex; justify-content:space-between; font-weight:600;"><span>bKash/Nagad Rate:</span> <span style="color:#00D632;">$1 = 120 BDT</span></div>
+      </div>
+      <p style="margin-bottom:10px;">• Minimum withdrawal amount is $5.</p>
+      <p style="margin-bottom:10px;">• Cashout requests are processed within 1-6 hours.</p>
+      <p style="color:#ffc800; font-weight:700; margin-top:20px;">* Ensure your wallet address or phone number is 100% correct before requesting cashout.</p>
+    </div>
+  </div>
+</div>
+
 <script>
 let currentUser = null;
 let allPayments = [];
@@ -226,6 +256,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   loadData();
   setInterval(startCountdownTick, 1000);
 });
+
+function openNoticeModal() { document.getElementById('noticeModal').style.display = 'flex'; }
+function closeNoticeModal() { document.getElementById('noticeModal').style.display = 'none'; }
 
 async function logoutUser() {
   await window.newSupabase.auth.signOut();
