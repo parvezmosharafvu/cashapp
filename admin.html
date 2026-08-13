@@ -5,13 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Master Admin - Global Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet">
-<!-- Supabase CDN -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-/* CSS হুবহু আপনার আগের ফাইলের মতো রাখা হয়েছে */
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 body { font-family:'DM Sans',sans-serif; background:#000; color:#fff; min-height:100vh; }
 
+/* ══════ LOGIN ══════ */
 .login-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; background: radial-gradient(circle at 30% 50%, rgba(100,180,255,0.10) 0%, transparent 65%); }
 .login-card { width:100%; max-width:380px; background:#0d0d0d; border:1px solid rgba(100,180,255,0.22); border-radius:24px; padding:38px 30px; box-shadow:0 12px 60px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.03) inset; }
 .login-logo { width:60px; height:60px; background:linear-gradient(135deg,#005cff,#00c3ff); border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:900; color:#fff; margin:0 auto 22px; box-shadow:0 6px 28px rgba(0,92,255,0.45); }
@@ -24,8 +23,9 @@ body { font-family:'DM Sans',sans-serif; background:#000; color:#fff; min-height
 .login-btn:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(0,92,255,0.45); }
 .login-error { color:#ff4d4d; font-size:13px; text-align:center; margin-top:14px; display:none; font-weight:600; }
 
+/* ══════ DASHBOARD ══════ */
 #dashboard { display:none; }
-.topbar { background:rgba(10,10,10,0.95); backdrop-filter:blur(12px); border-bottom:1px solid rgba(255,255,255,0.06); padding:13px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+.topbar { background:rgba(10,10,10,0.95); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-bottom:1px solid rgba(255,255,255,0.06); padding:13px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
 .topbar-logo { display:flex; align-items:center; gap:10px; }
 .topbar-icon { width:36px; height:36px; background:linear-gradient(135deg,#005cff,#00c3ff); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:900; color:#fff; box-shadow:0 3px 12px rgba(0,92,255,0.35); }
 .topbar-title { font-size:16px; font-weight:800; letter-spacing:-0.2px; }
@@ -33,11 +33,12 @@ body { font-family:'DM Sans',sans-serif; background:#000; color:#fff; min-height
 .topbar-right { display:flex; align-items:center; gap:10px; }
 .last-updated { font-size:11px; color:rgba(255,255,255,0.25); display:none; }
 .last-updated.show { display:block; }
-.logout-btn { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); color:rgba(255,255,255,0.55); padding:7px 15px; border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+.logout-btn { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.09); color:rgba(255,255,255,0.55); padding:7px 15px; border-radius:9px; font-size:13px; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.2s; }
 .logout-btn:hover { background:rgba(255,80,80,0.12); border-color:rgba(255,80,80,0.3); color:#ff6b6b; }
 
 .content { padding:20px; max-width:1200px; margin:0 auto; }
 
+/* ══════ STAT CARDS ══════ */
 .stats-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:24px; }
 @media (min-width:640px) { .stats-grid { grid-template-columns:repeat(4,1fr); gap:14px; } }
 .stat-card { background:#0d0d0d; border:1px solid rgba(255,255,255,0.07); border-radius:18px; padding:18px 16px; position:relative; overflow:hidden; }
@@ -46,15 +47,17 @@ body { font-family:'DM Sans',sans-serif; background:#000; color:#fff; min-height
 .stat-card.blue::before { background:radial-gradient(circle, rgba(100,180,255,0.08) 0%, transparent 70%); }
 .stat-card.profit-bg { border-color:rgba(0,214,50,0.25); background:linear-gradient(135deg,#0d0d0d,#0a1a0f); }
 .stat-card.profit-bg::before { background:radial-gradient(circle, rgba(0,214,50,0.1) 0%, transparent 70%); }
+
 .stat-icon { font-size:20px; margin-bottom:10px; }
 .stat-label { font-size:10px; color:rgba(255,255,255,0.38); text-transform:uppercase; letter-spacing:0.12em; font-weight:700; margin-bottom:6px; }
 .stat-val { font-size:24px; font-weight:800; color:#fff; letter-spacing:-0.5px; line-height:1; }
 .stat-card.blue .stat-val { color:#64b4ff; }
 .stat-sub { font-size:11px; color:rgba(255,255,255,0.28); margin-top:5px; font-weight:500; }
-.btn-profit { background:rgba(0,214,50,0.15); color:#00D632; border:1px solid rgba(0,214,50,0.4); padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer; text-transform:uppercase; transition:all 0.2s; }
+
+.btn-profit { background:rgba(0,214,50,0.15); color:#00D632; border:1px solid rgba(0,214,50,0.4); padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer; text-transform:uppercase; transition:all 0.2s; box-shadow: 0 4px 10px rgba(0,214,50,0.1); }
 .btn-profit:hover { background:rgba(0,214,50,0.25); transform:translateY(-2px); }
 
-/* Modal */
+/* ══════ MODAL (CALCULATOR) ══════ */
 .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(5px); display:none; align-items:center; justify-content:center; z-index:1000; padding:20px; }
 .modal-content { background:#0d0d0d; border:1px solid rgba(100,180,255,0.2); border-radius:24px; width:100%; max-width:420px; padding:24px; box-shadow:0 20px 80px rgba(0,0,0,0.9); }
 .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
@@ -68,9 +71,12 @@ body { font-family:'DM Sans',sans-serif; background:#000; color:#fff; min-height
 .res-line { display:flex; justify-content:space-between; font-size:12px; color:rgba(255,255,255,0.6); margin-bottom:8px; font-weight:500; }
 .res-line.highlight { font-size:18px; font-weight:800; color:#00D632; margin-top:12px; padding-top:12px; border-top:1px dashed rgba(255,255,255,0.1); }
 .save-profit-btn { width:100%; background:linear-gradient(135deg,#00D632,#00903c); color:#fff; border:none; border-radius:12px; padding:14px; font-size:15px; font-weight:800; cursor:pointer; margin-top:20px; font-family:'DM Sans'; transition:all 0.2s; }
+.save-profit-btn:hover { opacity:0.9; transform:translateY(-2px); }
 
+/* ══════ TABS & TABLE ══════ */
 .tabs { display:flex; gap:8px; margin-bottom:18px; }
 .tab-btn { background:#111; border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.45); padding:9px 18px; border-radius:11px; font-size:13px; font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.22s; flex:1; text-align:center; }
+@media (min-width:480px) { .tab-btn { flex:none; } }
 .tab-btn.active { background:rgba(100,180,255,0.12); border-color:rgba(100,180,255,0.3); color:#64b4ff; }
 
 .filter-bar { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; align-items:center; }
@@ -79,31 +85,37 @@ body { font-family:'DM Sans',sans-serif; background:#000; color:#fff; min-height
 .search-input:focus, .filter-select:focus { border-color:rgba(100,180,255,0.5); }
 .refresh-btn { background:rgba(100,180,255,0.09); border:1px solid rgba(100,180,255,0.28); color:#64b4ff; padding:9px 16px; border-radius:11px; font-size:13px; font-weight:700; cursor:pointer; transition:all 0.2s; }
 
+/* ══════ MODEL OVERVIEW SCROLL ══════ */
 .model-overview-scroll { display:flex; gap:12px; overflow-x:auto; padding-bottom:12px; margin-bottom:16px; }
 .model-overview-scroll::-webkit-scrollbar { height:6px; }
 .model-overview-scroll::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.15); border-radius:4px; }
 .model-stat-box { background:#0a0a0a; border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px; min-width:160px; flex-shrink:0; position:relative; overflow:hidden;}
 .model-stat-box::after { content:''; position:absolute; top:0; right:0; width:40px; height:40px; background:radial-gradient(circle, rgba(100,180,255,0.1) 0%, transparent 70%); transform:translate(10px,-10px); border-radius:50%; }
-.m-title { font-size:11px; font-weight:800; color:#fff; margin-bottom:10px; text-transform:uppercase; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:6px; }
+.m-title { font-size:11px; font-weight:800; color:#fff; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:6px; }
 .m-stat { font-size:11px; font-weight:700; color:rgba(255,255,255,0.8); margin-bottom:5px; display:flex; justify-content:space-between; gap:12px; }
 .c-pending { color:#ffc800; }
 .c-settled { color:#00D632; }
+.c-expired { color:#ff5050; }
 
+/* ══════ TABLE ══════ */
 .table-wrap { background:#0d0d0d; border:1px solid rgba(255,255,255,0.07); border-radius:18px; overflow:hidden; }
 .table-scroll { overflow-x:auto; display:none; }
 @media (min-width:750px) { .table-scroll { display:block; } }
 table { width:100%; border-collapse:collapse; }
-thead th { background:#111; padding:12px 16px; text-align:left; font-size:10px; font-weight:700; color:rgba(255,255,255,0.35); text-transform:uppercase; border-bottom:1px solid rgba(255,255,255,0.06); }
+thead th { background:#111; padding:12px 16px; text-align:left; font-size:10px; font-weight:700; color:rgba(255,255,255,0.35); text-transform:uppercase; letter-spacing:0.1em; white-space:nowrap; border-bottom:1px solid rgba(255,255,255,0.06); }
 tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,255,255,0.04); white-space:nowrap; }
 
 .mobile-list { display:block; }
 @media (min-width:750px) { .mobile-list { display:none; } }
 .m-card, .m-card-w { padding:16px; border-bottom:1px solid rgba(255,255,255,0.05); }
 .m-row { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+.m-left { flex:1; min-width:0; }
+.m-invoice { font-family:monospace; font-size:12px; color:rgba(255,255,255,0.55); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .m-amount { font-size:22px; font-weight:800; color:#fff; letter-spacing:-0.5px; }
 .m-empty { text-align:center; padding:48px 20px; color:rgba(255,255,255,0.28); font-size:14px; }
 .m-meta { display:flex; align-items:center; justify-content:space-between; margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.05); }
 
+/* ══════ BADGES & BUTTONS ══════ */
 .model-badge { background: rgba(100,180,255,0.15); color: #64b4ff; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 10px; text-transform: uppercase; border: 1px solid rgba(100,180,255,0.3); display: inline-block; letter-spacing: 0.5px;}
 .model-badge-profit { background: rgba(0,214,50,0.15); color: #00D632; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 10px; text-transform: uppercase; border: 1px solid rgba(0,214,50,0.3); display: inline-block; letter-spacing: 0.5px;}
 
@@ -112,6 +124,10 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
 .badge.new, .badge.pending { background:rgba(255,200,0,0.10); border:1px solid rgba(255,200,0,0.28); color:#ffc800; }
 .badge.expired { background:rgba(255,80,80,0.10); border:1px solid rgba(255,80,80,0.28); color:#ff5050; }
 .badge-dot { width:5px; height:5px; border-radius:50%; background:currentColor; flex-shrink:0; }
+
+.m-pill { font-size:11px; color:rgba(255,255,255,0.4); background:rgba(255,255,255,0.05); padding:4px 10px; border-radius:999px; font-weight:600; display:inline-flex; align-items:center; gap:4px; }
+.m-expire { font-size:11px; color:#ffc800; font-weight:700; background:rgba(255,200,0,0.1); padding:4px 10px; border-radius:999px; }
+.m-expired-pill { font-size:11px; color:#ff5050; font-weight:700; background:rgba(255,80,80,0.1); padding:4px 10px; border-radius:999px; }
 
 .btn-mark { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); padding: 6px 14px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
 .btn-mark:hover:not(:disabled) { background: rgba(255,255,255,0.2); }
@@ -130,8 +146,8 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
     <div class="login-logo">★</div>
     <div class="login-title">Master Admin</div>
     <div class="login-sub">Global Dashboard</div>
-    <div class="field-label">Admin Email</div>
-    <input type="email" id="loginUser" class="field-input" placeholder="Enter admin email">
+    <div class="field-label">Username</div>
+    <input type="text" id="loginUser" class="field-input" placeholder="Enter username">
     <div class="field-label">Password</div>
     <input type="password" id="loginPass" class="field-input" placeholder="Enter password" onkeydown="if(event.key==='Enter') doLogin()">
     <button class="login-btn" onclick="doLogin()">Secure Login →</button>
@@ -156,9 +172,11 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
 
   <div class="content">
     <div class="stats-grid">
+      <!-- 1. Total Global Settled -->
       <div class="stat-card blue">
         <div class="stat-label">Total Global Settled</div>
         <div class="stat-val" id="statSettled">$0.00</div>
+        
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; border-top:1px solid rgba(255,255,255,0.08); padding-top:12px;">
            <div>
               <div class="stat-label" style="margin-bottom:2px; color:rgba(255,255,255,0.5);">All-Time Saved</div>
@@ -168,15 +186,18 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
         </div>
       </div>
 
+      <!-- 2. Master Profit -->
       <div class="stat-card profit-bg">
         <div class="stat-label">Master Profit</div>
         <div class="stat-val" id="statProfit" style="color:#00D632;">$0.00</div>
         <div class="stat-sub">Your totally saved earnings</div>
       </div>
 
+      <!-- 3. Available Balance -->
       <div class="stat-card">
         <div class="stat-label">Available Balance</div>
         <div class="stat-val" id="statAvailable" style="color:#64b4ff;">$0.00</div>
+        
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; border-top:1px solid rgba(255,255,255,0.08); padding-top:12px;">
            <div>
               <div class="stat-label" style="margin-bottom:2px; color:rgba(255,255,255,0.5);">Action</div>
@@ -186,6 +207,7 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
         </div>
       </div>
 
+      <!-- 4. Pending Models WD -->
       <div class="stat-card">
         <div class="stat-icon">⏳</div>
         <div class="stat-label">Pending Models WD</div>
@@ -205,12 +227,12 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
           <option value="">All Status</option>
           <option value="pending">Pending</option>
           <option value="settled">Settled</option>
+          <option value="expired">Expired</option>
         </select>
         <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search Invoice or Model..." oninput="resetAndRenderPayments()">
         <button class="refresh-btn" onclick="loadData()">⟳ Refresh</button>
       </div>
 
-      <!-- New Admin User Earnings View Scroll -->
       <div class="model-overview-scroll" id="modelOverviewGrid"></div>
 
       <div class="table-wrap">
@@ -222,10 +244,11 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
                 <th>Address Details</th>
                 <th>Amount</th>
                 <th>Status / Location</th>
+                <th>Expires</th>
                 <th>Action</th>
               </tr>
             </thead>
-            <tbody id="paymentsBody"><tr><td colspan="5" class="m-empty">Loading...</td></tr></tbody>
+            <tbody id="paymentsBody"><tr><td colspan="6" class="m-empty">Loading...</td></tr></tbody>
           </table>
         </div>
         <div class="mobile-list" id="mobilePaymentsList"><div class="m-empty">Loading...</div></div>
@@ -259,17 +282,19 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
   </div>
 </div>
 
-<!-- Calculator Modal -->
 <div class="modal-overlay" id="calcModal">
   <div class="modal-content">
     <div class="modal-header">
       <div class="modal-title">Profit Calculator (Advanced)</div>
       <button class="modal-close" onclick="closeCalcModal()">×</button>
     </div>
+    
     <div class="field-label">1. Amount to Calculate (Model Payout USD)</div>
     <input type="number" id="calcAvail" class="calc-input" style="margin-bottom:12px; color:#ffc800; border-color:rgba(255,200,0,0.4);" oninput="doMath()">
+    
     <div class="field-label">2. Amount Received in Binance (USD)</div>
     <input type="number" id="calcRecv" class="calc-input" placeholder="e.g. 10213.47" style="margin-bottom:16px; color:#00D632; border-color:rgba(0,214,50,0.4);" oninput="doMath()">
+    
     <div class="calc-row">
       <div class="calc-col">
         <div class="field-label">Sell Rate (BDT)</div>
@@ -280,6 +305,7 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
         <input type="number" id="calcBuy" class="calc-input" placeholder="e.g. 130" oninput="doMath()">
       </div>
     </div>
+
     <div class="result-box">
       <div class="res-line"><span>Total Converted (BDT):</span> <span id="resTotalBDT">৳0.00</span></div>
       <div class="res-line" style="color:#ff5050;"><span>Models Payout Cost (BDT):</span> <span id="resCostBDT">-৳0.00</span></div>
@@ -287,25 +313,30 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
           <span>Total Profit (BDT):</span> <span id="resTotalProfitBDT">৳0.00</span>
       </div>
       <div class="res-line" style="color:#ffc800;"><span>Admin 50% Share (BDT):</span> <span id="resAdminShareBDT">+৳0.00</span></div>
+      
       <div class="res-line highlight"><span>Net Profit (USD):</span> <span id="resFinalProfit">$0.00</span></div>
     </div>
+
     <button class="save-profit-btn" id="saveProfitBtn" onclick="saveCalculatedProfit()">Confirm & Save Profit</button>
   </div>
 </div>
     
 <script>
-// 🟢 SUPABASE CONFIGURATION
-const SUPABASE_URL = 'https://ohwzmxwsphsfzudmlins.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9od3pteHdzcGhzZnp1ZG1saW5zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMzE0MTksImV4cCI6MjEwMTYwNzQxOX0.frTl7qnDx7SK2IBMQxFCkKGe5u4XAQweRxPhQ-2r8rU';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// 🟢 CROSS-DATABASE CONFIGURATION 🟢
+const OLD_DB_URL = 'https://ymdhewjlbofmeuhahkbw.supabase.co';
+const OLD_DB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltZGhld2psYm9mbWV1aGFoa2J3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2NTgyNjcsImV4cCI6MjEwMDIzNDI2N30.1wuZwSTmmYn48U23bAnah2h-wDm-2hC4Omv_jUNic98';
 
+const NEW_DB_URL = 'https://ohwzmxwsphsfzudmlins.supabase.co';
+const NEW_DB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9od3pteHdzcGhzZnp1ZG1saW5zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMzE0MTksImV4cCI6MjEwMTYwNzQxOX0.frTl7qnDx7SK2IBMQxFCkKGe5u4XAQweRxPhQ-2r8rU';
+
+const ADMIN_USER = 'master';
 const PER_PAGE = 30;
+
 let allPayments = [];
 let allWithdrawals = [];
 let currentPayPage = 1;
 let globalAvailable = 0;
 let finalCalculatedProfit = 0;
-let masterAuthToken = ''; 
 
 function formatDateTime(dateStr) {
   const d = new Date(dateStr);
@@ -314,15 +345,21 @@ function formatDateTime(dateStr) {
   return `${date}, ${time}`;
 }
 
-// 🟢 SECURE LOGIN USING SUPABASE AUTH
+function extractModelName(urlStr) {
+  if(!urlStr) return 'Unknown';
+  if(urlStr.includes('/')) return urlStr.split('/').filter(p => p.length > 0).pop();
+  return urlStr;
+}
+
+// 🟢 HIGH-SECURITY DATABASE LOGIN (Using Old DB) 🟢
 async function doLogin() {
-  const email = document.getElementById('loginUser').value.trim();
+  const u = document.getElementById('loginUser').value.trim();
   const p = document.getElementById('loginPass').value;
   const btn = document.querySelector('.login-btn');
 
-  if (!email || p === '') {
+  if (u !== ADMIN_USER || p === '') {
     const err = document.getElementById('loginError');
-    err.textContent = "Please enter email and password";
+    err.textContent = "Access Denied: Invalid Username";
     err.style.display = 'block';
     return;
   }
@@ -330,19 +367,33 @@ async function doLogin() {
   btn.textContent = "Checking...";
   btn.disabled = true;
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email: email, password: p });
+  try {
+    const res = await fetch(`${OLD_DB_URL}/rest/v1/rpc/toggle_mark`, {
+      method: 'POST',
+      headers: {
+        'apikey': OLD_DB_KEY, 
+        'Authorization': `Bearer ${OLD_DB_KEY}`, 
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ p_invoice_id: 'fake_login_verification', p_is_marked: false, p_pass: p })
+    });
 
-  if (error) {
+    if (res.ok) {
+      sessionStorage.setItem('masterAuth', 'true');
+      sessionStorage.setItem('masterPass', p); 
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      loadData();
+      startCountdownTick();
+    } else {
+      const err = document.getElementById('loginError');
+      err.textContent = "Access Denied: Wrong Password!";
+      err.style.display = 'block';
+    }
+  } catch (e) {
     const err = document.getElementById('loginError');
-    err.textContent = "Access Denied: " + error.message;
+    err.textContent = "Network Error! Check your connection.";
     err.style.display = 'block';
-  } else {
-    masterAuthToken = data.session.access_token;
-    sessionStorage.setItem('masterToken', masterAuthToken);
-    sessionStorage.setItem('masterPass', p); 
-    document.getElementById('loginPage').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
-    loadData();
   }
 
   btn.textContent = "Secure Login →";
@@ -350,23 +401,23 @@ async function doLogin() {
 }
 
 function doLogout() {
-  supabase.auth.signOut();
-  sessionStorage.removeItem('masterToken');
+  sessionStorage.removeItem('masterAuth');
   sessionStorage.removeItem('masterPass');
   location.reload();
 }
 
-if (sessionStorage.getItem('masterToken')) {
-  masterAuthToken = sessionStorage.getItem('masterToken');
+if (sessionStorage.getItem('masterAuth') === 'true') {
   document.getElementById('loginPage').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
   loadData();
+  startCountdownTick();
   setInterval(loadData, 30000); 
 }
 
-// 🟢 FETCHING DATA 
+// 🟢 HYBRID DATA LOAD (Fetching from both DBs) 🟢
 async function loadData() {
-  await Promise.all([fetchModelOverview(), fetchPayments(), fetchWithdrawals(), fetchLifetimeTotal(), updateStats()]);
+  await Promise.all([fetchPayments(), fetchWithdrawals(), fetchLifetimeTotal(), updateStats()]);
+  renderModelOverview();
   renderPayments();
   renderWithdrawals();
   const el = document.getElementById('lastUpdated');
@@ -374,53 +425,11 @@ async function loadData() {
   el.classList.add('show');
 }
 
-// Using the new database view you created
-async function fetchModelOverview() {
-  const { data, error } = await supabase.from('admin_user_earnings_view').select('*');
-  const container = document.getElementById('modelOverviewGrid');
-  
-  if (error || !data || data.length === 0) {
-    container.innerHTML = '<div style="color:rgba(255,255,255,0.4); font-size:12px; padding:10px;">No user model data available</div>';
-    return;
-  }
-
-  container.innerHTML = data.map(m => `
-    <div class="model-stat-box">
-      <div class="m-title" style="font-size:10px; color:#64b4ff;">${m.member_email}</div>
-      <div class="m-title" style="margin-top:-5px;">${m.model}</div>
-      <div class="m-stat"><span class="c-pending">Pending:</span> <span>$${(m.total_pending || 0).toFixed(2)}</span></div>
-      <div class="m-stat"><span class="c-settled">Settled:</span> <span>$${(m.total_settled || 0).toFixed(2)}</span></div>
-    </div>
-  `).join('');
-}
-
-// Fetch via REST API to preserve your custom RPC headers[span_3](start_span)[span_3](end_span)
-async function fetchPayments() {
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/payments?select=*&order=created_at.desc&limit=1000`, {
-      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${masterAuthToken}` }
-    });
-    let data = await res.json();
-    if (!data.error) allPayments = data;
-  } catch(e) { console.error(e); }
-}
-
-async function fetchWithdrawals() {
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/withdrawals?select=*&order=created_at.desc&limit=1000`, {
-      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${masterAuthToken}` }
-    });
-    let data = await res.json();
-    if (!data.error) allWithdrawals = data;
-  } catch(e) { console.error(e); }
-}
-
-// Keep your custom RPCs[span_4](start_span)[span_4](end_span)
 async function updateStats() {
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_master_stats`, {
+    const res = await fetch(`${OLD_DB_URL}/rest/v1/rpc/get_master_stats`, {
       method: 'POST',
-      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${masterAuthToken}` }
+      headers: { 'apikey': OLD_DB_KEY, 'Authorization': `Bearer ${OLD_DB_KEY}` }
     });
     if(res.ok) {
       const data = await res.json();
@@ -428,22 +437,65 @@ async function updateStats() {
       document.getElementById('statSettled').textContent = '$' + parseFloat(data.total_settled || 0).toFixed(2);
       document.getElementById('statProfit').textContent = '$' + parseFloat(data.total_profit_saved || 0).toFixed(2);
       document.getElementById('statAvailable').textContent = '$' + globalAvailable.toFixed(2);
-      document.getElementById('statPendingWD').textContent = data.pending_wd_count + ' requests';
+      
+      // Calculate pending withdrawals directly from NEW DB Data
+      const pendingWDs = allWithdrawals.filter(w => w.status === 'pending').length;
+      document.getElementById('statPendingWD').textContent = pendingWDs + ' requests';
     }
-  } catch(e) {}
+  } catch(e) { console.error("Stats Error:", e); }
+}
+
+async function fetchPayments() {
+  try {
+    let allFetchedData = [], offset = 0, limit = 1000, keepFetching = true;
+    while(keepFetching) {
+      const res = await fetch(`${OLD_DB_URL}/rest/v1/payments?select=*&order=created_at.desc&limit=${limit}&offset=${offset}`, {
+        headers: { 'apikey': OLD_DB_KEY, 'Authorization': `Bearer ${OLD_DB_KEY}` }
+      });
+      let data = await res.json();
+      if (data.error || data.length === 0) break;
+      allFetchedData = allFetchedData.concat(data);
+      if (data.length < limit) keepFetching = false; else offset += limit;
+    }
+    const now = new Date();
+    allPayments = allFetchedData.map(p => {
+      p._expireMins = (p.payment_type && p.payment_type.toLowerCase() === 'usdc') ? 15 : 60;
+      if (p.status === 'new' || p.status === 'pending') {
+        if ((now - new Date(p.created_at))/60000 > p._expireMins) p._uiExpired = true;
+      }
+      return p;
+    });
+  } catch(e) { console.error(e); }
+}
+
+// 🟢 NEW DB: Fetch Withdrawals 🟢
+async function fetchWithdrawals() {
+  try {
+    let allFetchedData = [], offset = 0, limit = 1000, keepFetching = true;
+    while(keepFetching) {
+      const res = await fetch(`${NEW_DB_URL}/rest/v1/withdrawals?select=*,owner_id(email)&order=created_at.desc&limit=${limit}&offset=${offset}`, {
+        headers: { 'apikey': NEW_DB_KEY, 'Authorization': `Bearer ${NEW_DB_KEY}` }
+      });
+      let data = await res.json();
+      if (data.error || data.length === 0) break;
+      allFetchedData = allFetchedData.concat(data);
+      if (data.length < limit) keepFetching = false; else offset += limit;
+    }
+    allWithdrawals = allFetchedData;
+  } catch(e) { console.error(e); }
 }
 
 async function fetchLifetimeTotal() {
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_lifetime_total`, {
+    const res = await fetch(`${OLD_DB_URL}/rest/v1/rpc/get_lifetime_total`, {
       method: 'POST',
-      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${masterAuthToken}` }
+      headers: { 'apikey': OLD_DB_KEY, 'Authorization': `Bearer ${OLD_DB_KEY}` }
     });
     if(res.ok) {
       const lifetime = await res.json();
       document.getElementById('statLifetime').textContent = '$' + (parseFloat(lifetime) || 0).toFixed(2);
     }
-  } catch(e) {}
+  } catch(e) { console.error(e); }
 }
 
 async function backupLifetime() {
@@ -454,16 +506,53 @@ async function backupLifetime() {
   if(!confirm(`Do you want to add the current $${currentTotal.toFixed(2)} to your 'All-Time Saved' record?`)) return;
 
   const btn = event.target; btn.disabled = true; btn.textContent = 'Saving...';
+
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/save_lifetime_total`, {
+    const res = await fetch(`${OLD_DB_URL}/rest/v1/rpc/save_lifetime_total`, {
       method: 'POST',
-      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${masterAuthToken}`, 'Content-Type': 'application/json' },
+      headers: { 'apikey': OLD_DB_KEY, 'Authorization': `Bearer ${OLD_DB_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ p_amount: currentTotal, p_pass: sessionStorage.getItem('masterPass') })
     });
-    if(res.ok) { alert("Successfully Added!"); loadData(); } 
-    else { const err = await res.json(); alert(`❌ Backup Failed!\nReason: ${err.message || err.details}`); }
-  } catch(e) { alert("❌ Network Error!"); }
+    
+    if(res.ok) {
+      alert("Successfully Added! Your All-Time history is updated.");
+      loadData();
+    } else {
+      const err = await res.json();
+      alert(`❌ Backup Failed!\nReason: ${err.message || err.details}`);
+    }
+  } catch(e) { 
+      alert("❌ Network Error!");
+  }
   btn.disabled = false; btn.textContent = '+ Backup';
+}
+
+function renderModelOverview() {
+  const stats = {};
+  allPayments.forEach(p => {
+    const m = extractModelName(p.source).toUpperCase();
+    if(!stats[m]) stats[m] = { pending: 0, settled: 0, expired: 0 };
+    let es = p.status;
+    if (p._uiExpired) es = 'expired';
+
+    if (es === 'pending' || es === 'new') stats[m].pending += parseFloat(p.amount||0);
+    else if (es === 'settled' || es === 'completed' || es === 'paid') stats[m].settled += parseFloat(p.amount||0);
+    else if (es === 'expired') stats[m].expired += parseFloat(p.amount||0);
+  });
+
+  const container = document.getElementById('modelOverviewGrid');
+  let html = '';
+  for(const [model, data] of Object.entries(stats)) {
+    html += `<div class="model-stat-box">
+      <div class="m-title">${model}</div>
+      <div class="m-stat"><span class="c-pending">Pending:</span> <span>$${data.pending.toFixed(2)}</span></div>
+      <div class="m-stat"><span class="c-settled">Settled:</span> <span>$${data.settled.toFixed(2)}</span></div>
+      <div class="m-stat"><span class="c-expired">Expired:</span> <span>$${data.expired.toFixed(2)}</span></div>
+    </div>`;
+  }
+  
+  if(html === '') html = '<div style="color:rgba(255,255,255,0.4); font-size:12px; padding:10px;">No models data available</div>';
+  container.innerHTML = html;
 }
 
 function openCalcModal() {
@@ -474,6 +563,7 @@ function openCalcModal() {
   doMath();
   document.getElementById('calcModal').style.display = 'flex';
 }
+
 function closeCalcModal() { document.getElementById('calcModal').style.display = 'none'; }
 
 function doMath() {
@@ -483,36 +573,56 @@ function doMath() {
   const B = parseFloat(document.getElementById('calcBuy').value) || 0;
 
   if (R === 0 || S === 0 || B === 0) {
+    document.getElementById('resTotalBDT').textContent = "৳0.00";
+    document.getElementById('resCostBDT').textContent = "-৳0.00";
+    document.getElementById('resTotalProfitBDT').textContent = "৳0.00";
+    document.getElementById('resAdminShareBDT').textContent = "+৳0.00";
     document.getElementById('resFinalProfit').textContent = "$0.00";
-    finalCalculatedProfit = 0; return;
+    finalCalculatedProfit = 0;
+    return;
   }
+
   const totalConvertedBDT = R * S;
   const modelsCostBDT = A * B;
   const totalProfitBDT = totalConvertedBDT - modelsCostBDT;
   const adminShareBDT = totalProfitBDT / 2;
-  finalCalculatedProfit = adminShareBDT / S;
+  const netProfitUSD = adminShareBDT / S;
   
+  finalCalculatedProfit = netProfitUSD;
+
   const fmt = (num) => num.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
   document.getElementById('resTotalBDT').textContent = "৳" + fmt(totalConvertedBDT);
   document.getElementById('resCostBDT').textContent = "-৳" + fmt(modelsCostBDT);
   document.getElementById('resTotalProfitBDT').textContent = "৳" + fmt(totalProfitBDT);
   document.getElementById('resAdminShareBDT').textContent = "+৳" + fmt(adminShareBDT);
-  document.getElementById('resFinalProfit').textContent = "$" + finalCalculatedProfit.toFixed(6); 
+  document.getElementById('resFinalProfit').textContent = "$" + netProfitUSD.toFixed(6); 
 }
 
 async function saveCalculatedProfit() {
   if (finalCalculatedProfit <= 0) return alert("Please calculate a valid profit first.");
+  
   const btn = document.getElementById('saveProfitBtn');
   btn.disabled = true; btn.textContent = 'Saving...';
+
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/admin_save_profit`, {
+    const res = await fetch(`${OLD_DB_URL}/rest/v1/rpc/admin_save_profit`, {
       method: 'POST',
-      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${masterAuthToken}`, 'Content-Type': 'application/json' },
+      headers: { 'apikey': OLD_DB_KEY, 'Authorization': `Bearer ${OLD_DB_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ p_profit: finalCalculatedProfit, p_clear: 0, p_pass: sessionStorage.getItem('masterPass') })
     });
-    if(res.ok) { closeCalcModal(); loadData(); alert("Success! Profit saved."); } 
-    else { const err = await res.json(); alert(`❌ Save Failed!\nReason: ${err.message || err.details}`); }
-  } catch(e) { alert("❌ Network Error!"); }
+    if(res.ok) {
+      closeCalcModal();
+      loadData();
+      alert("Success! Master Profit saved.");
+    } else { 
+      const err = await res.json();
+      alert(`❌ Save Failed!\nReason: ${err.message || err.details}`); 
+    }
+  } catch(e) { 
+      alert("❌ Network Error!"); 
+  }
+  
   btn.disabled = false; btn.textContent = 'Confirm & Save Profit';
 }
 
@@ -520,43 +630,39 @@ async function toggleMark(invoiceId, currentStatus, btnElement) {
   const newStatus = !currentStatus;
   btnElement.disabled = true; btnElement.textContent = '...';
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/toggle_mark`, {
+    const res = await fetch(`${OLD_DB_URL}/rest/v1/rpc/toggle_mark`, {
       method: 'POST',
-      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${masterAuthToken}`, 'Content-Type': 'application/json' },
+      headers: { 'apikey': OLD_DB_KEY, 'Authorization': `Bearer ${OLD_DB_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ p_invoice_id: invoiceId, p_is_marked: newStatus, p_pass: sessionStorage.getItem('masterPass') })
     });
-    if (res.ok) { loadData(); } else { btnElement.disabled = false; btnElement.textContent = 'Mark'; }
+    if (res.ok) { loadData(); } 
+    else { btnElement.disabled = false; btnElement.textContent = 'Mark'; }
   } catch(e) { btnElement.disabled = false; btnElement.textContent = 'Mark'; }
 }
 
+// 🟢 NEW DB: Mark Withdrawal Completed 🟢
 async function completeWithdrawal(id, btnElement) {
   if(!confirm("Mark this as Completed?")) return;
   btnElement.disabled = true; btnElement.textContent = 'Processing...';
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/complete_withdrawal`, {
-      method: 'POST',
-      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${masterAuthToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ p_id: id, p_pass: sessionStorage.getItem('masterPass') })
+    const res = await fetch(`${NEW_DB_URL}/rest/v1/withdrawals?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: { 'apikey': NEW_DB_KEY, 'Authorization': `Bearer ${NEW_DB_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'completed' })
     });
-    if (res.ok) { loadData(); } else { btnElement.disabled = false; btnElement.textContent = 'Mark Paid'; }
+    if (res.ok) { loadData(); } 
+    else { btnElement.disabled = false; btnElement.textContent = 'Mark Paid'; }
   } catch(e) { btnElement.disabled = false; btnElement.textContent = 'Mark Paid'; }
 }
 
 function resetAndRenderPayments() { currentPayPage = 1; renderPayments(); }
 function changePage(page) { currentPayPage = page; renderPayments(); }
 
-function extractModelName(urlStr) {
-  if(!urlStr) return 'Unknown';
-  if(urlStr.includes('/')) return urlStr.split('/').filter(p => p.length > 0).pop();
-  return urlStr;
-}
-
 function renderPayments() {
   const statusFilter = document.getElementById('filterStatus').value;
   const search = document.getElementById('searchInput').value.toLowerCase();
-  
   const filtered = allPayments.filter(p => {
-    let es = p.status; 
+    let es = p.status; if (p._uiExpired) es = 'expired';
     const model = extractModelName(p.source).toLowerCase();
     if (statusFilter === 'pending' && (es !== 'pending' && es !== 'new')) return false;
     else if (statusFilter && statusFilter !== 'pending' && es !== statusFilter) return false;
@@ -580,47 +686,76 @@ function renderPayments() {
   const paginated = filtered.slice(start, start + PER_PAGE);
 
   tbody.innerHTML = paginated.map(p => {
-    let es = p.status; 
+    let es = p.status; if (p._uiExpired) es = 'expired';
     const fullAddress = p.payment_request || p.wallet_address || p.invoice_id || '';
-    let displayAddress = fullAddress.length > 25 ? fullAddress.substring(0, 12) + '...' + fullAddress.substring(fullAddress.length - 9) : fullAddress;
+    let displayAddress = fullAddress;
+    if (fullAddress.length > 25) { displayAddress = fullAddress.substring(0, 12) + '...' + fullAddress.substring(fullAddress.length - 9); }
     
     const isMarked = p.is_marked === true;
     const model = extractModelName(p.source).toUpperCase();
     const methodStr = p.payment_type ? p.payment_type.toUpperCase() : 'LIGHTNING';
     const methodColor = methodStr === 'USDC' ? '#00D632' : (methodStr === 'ONCHAIN' ? '#f7931a' : '#ffc400');
     const locStr = p.city ? `📍 ${p.city}${p.country ? ', '+p.country : ''}` : '📍 Unknown';
+    
+    let expirePart = '-';
+    if (es === 'expired') expirePart = '<span class="m-expired-pill">Expired</span>';
+    else if ((p.status === 'new' || p.status === 'pending') && !p._uiExpired) {
+      const expireAt = new Date(new Date(p.created_at).getTime() + p._expireMins * 60000);
+      expirePart = `<span class="m-expire" data-expire="${expireAt.toISOString()}">...</span>`;
+    }
+    
     const explorerUrl = `https://mempool.space/search?q=${fullAddress}`;
     
     return `<tr class="${isMarked ? 'is-marked' : ''}">
       <td><span class="model-badge">${model}</span></td>
       <td>
-         <a href="${explorerUrl}" target="_blank" style="color:#64b4ff; text-decoration:none; font-family:monospace; font-size:13px;">${displayAddress} 🔗</a>
-         <div style="margin-top:4px;"><span style="font-size:9px;font-weight:700;color:${methodColor};background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px;">${methodStr}</span></div>
+         <a href="${explorerUrl}" target="_blank" title="Verify on Blockchain: ${fullAddress}" style="color:#64b4ff; text-decoration:none; font-family:monospace; font-size:13px; display:inline-block; letter-spacing:0.5px;">
+            <span style="color:rgba(255,255,255,0.4); margin-right:4px;">👤 To</span>${displayAddress} 🔗
+         </a>
+         <div style="display:flex;align-items:center;gap:6px;margin-top:4px;">
+            <span style="font-size:9px;font-weight:700;color:${methodColor};background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px;">${methodStr}</span>
+            <div style="font-size:10px;color:rgba(255,255,255,0.4);">${formatDateTime(p.created_at)}</div>
+         </div>
       </td>
       <td style="font-weight:800;color:#fff;font-size:16px;">$${parseFloat(p.amount||0).toFixed(2)}</td>
-      <td><span class="badge ${es}"><span class="badge-dot"></span>${es}</span><br><div class="m-pill" style="margin-top:4px;">${locStr}</div></td>
+      <td><span class="badge ${es}" style="margin-bottom:4px;"><span class="badge-dot"></span>${es}</span><br><div class="m-pill">${locStr}</div></td>
+      <td>${expirePart}</td>
       <td><button class="btn-mark ${isMarked ? 'marked-active' : ''}" onclick="toggleMark('${p.invoice_id}', ${isMarked}, this)">${isMarked ? '✓ Marked' : 'Mark'}</button></td>
     </tr>`;
   }).join('');
 
   mList.innerHTML = paginated.map(p => {
-    let es = p.status; 
+    let es = p.status; if (p._uiExpired) es = 'expired';
     const fullAddress = p.payment_request || p.wallet_address || p.invoice_id || '';
-    let displayAddress = fullAddress.length > 25 ? fullAddress.substring(0, 12) + '...' + fullAddress.substring(fullAddress.length - 9) : fullAddress;
+    let displayAddress = fullAddress;
+    if (fullAddress.length > 25) { displayAddress = fullAddress.substring(0, 12) + '...' + fullAddress.substring(fullAddress.length - 9); }
     
     const isMarked = p.is_marked === true;
     const model = extractModelName(p.source).toUpperCase();
     const methodStr = p.payment_type ? p.payment_type.toUpperCase() : 'LIGHTNING';
     const methodColor = methodStr === 'USDC' ? '#00D632' : (methodStr === 'ONCHAIN' ? '#f7931a' : '#ffc400');
     const locStr = p.city ? `📍 ${p.city}${p.country ? ', '+p.country : ''}` : '📍 Unknown';
+    
+    let expirePart = '';
+    if (es === 'expired') expirePart = '<span class="m-expired-pill">Expired</span>';
+    else if ((p.status === 'new' || p.status === 'pending') && !p._uiExpired) {
+      const expireAt = new Date(new Date(p.created_at).getTime() + p._expireMins * 60000);
+      expirePart = `<span class="m-expire" data-expire="${expireAt.toISOString()}">...</span>`;
+    }
+    
     const explorerUrl = `https://mempool.space/search?q=${fullAddress}`;
 
     return `<div class="m-card ${isMarked ? 'is-marked' : ''}">
       <div class="m-row">
         <div class="m-left">
            <div style="margin-bottom:8px;"><span class="model-badge">${model}</span></div>
-           <a href="${explorerUrl}" target="_blank" style="color:#64b4ff; text-decoration:none; font-family:monospace; font-size:13px;">${displayAddress} 🔗</a>
-           <div style="margin-top:6px;"><span style="font-size:9px;font-weight:800;color:${methodColor};background:rgba(255,255,255,0.05);padding:3px 6px;border-radius:4px;">${methodStr}</span></div>
+           <a href="${explorerUrl}" target="_blank" title="Verify on Blockchain: ${fullAddress}" style="color:#64b4ff; text-decoration:none; font-family:monospace; font-size:13px; display:block; letter-spacing:0.5px;">
+              <span style="color:rgba(255,255,255,0.4); margin-right:4px;">👤 To</span>${displayAddress} 🔗
+           </a>
+           <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
+              <span style="font-size:9px;font-weight:800;color:${methodColor};background:rgba(255,255,255,0.05);padding:3px 6px;border-radius:4px;">${methodStr}</span>
+              <div style="color:rgba(255,255,255,0.5);font-size:11px;">${formatDateTime(p.created_at)}</div>
+           </div>
         </div>
         <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
           <div class="m-amount">$${parseFloat(p.amount||0).toFixed(2)}</div>
@@ -628,7 +763,7 @@ function renderPayments() {
         </div>
       </div>
       <div class="m-meta">
-        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><span class="m-pill">${locStr}</span></div>
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><span class="m-pill">${locStr}</span>${expirePart}</div>
         <button class="btn-mark ${isMarked ? 'marked-active' : ''}" onclick="toggleMark('${p.invoice_id}', ${isMarked}, this)">${isMarked ? '✓ Marked' : 'Mark'}</button>
       </div>
     </div>`;
@@ -658,11 +793,11 @@ function renderWithdrawals() {
   tbody.innerHTML = allWithdrawals.map(w => {
     const isCompleted = w.status === 'completed';
     const isProfit = w.source === 'Master Admin' && w.method === 'Profit';
-    const isSys = w.source === 'Master Admin' && w.method === 'System';
-    if(isSys) return ''; 
     
-    const model = isProfit ? 'MY PROFIT' : extractModelName(w.source).toUpperCase();
+    // 🟢 Fetch email from linked owner_id in New DB 🟢
+    const model = isProfit ? 'MY PROFIT' : (w.owner_id ? w.owner_id.email : 'Unknown User').toUpperCase();
     const badgeClass = isProfit ? 'model-badge-profit' : 'model-badge';
+    
     let methodStyle = '#00D632'; 
     if (w.method === 'Binance') methodStyle = '#f3ba2f'; else if (w.method === 'bKash') methodStyle = '#e2136e'; else if (w.method === 'Nagad') methodStyle = '#f76a20';
     
@@ -682,11 +817,11 @@ function renderWithdrawals() {
   mList.innerHTML = allWithdrawals.map(w => {
     const isCompleted = w.status === 'completed';
     const isProfit = w.source === 'Master Admin' && w.method === 'Profit';
-    const isSys = w.source === 'Master Admin' && w.method === 'System';
-    if(isSys) return '';
     
-    const model = isProfit ? 'MY PROFIT' : extractModelName(w.source).toUpperCase();
+    // 🟢 Fetch email from linked owner_id in New DB 🟢
+    const model = isProfit ? 'MY PROFIT' : (w.owner_id ? w.owner_id.email : 'Unknown User').toUpperCase();
     const badgeClass = isProfit ? 'model-badge-profit' : 'model-badge';
+    
     let methodStyle = '#00D632';
     if (w.method === 'Binance') methodStyle = '#f3ba2f'; else if (w.method === 'bKash') methodStyle = '#e2136e'; else if (w.method === 'Nagad') methodStyle = '#f76a20';
     
@@ -715,7 +850,17 @@ function switchTab(tab, btn) {
   document.getElementById('tab-payments').style.display = tab==='payments' ? 'block' : 'none';
   document.getElementById('tab-withdrawals').style.display = tab==='withdrawals' ? 'block' : 'none';
 }
+
+function startCountdownTick() {
+  setInterval(() => {
+    document.querySelectorAll('[data-expire]').forEach(el => {
+      const diff = Math.max(0, Math.floor((new Date(el.dataset.expire) - new Date()) / 1000));
+      const m = Math.floor(diff/60), s = diff%60;
+      el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      if (diff === 0) el.className = el.classList.contains('m-expire') ? 'm-expired-pill' : 'expired-text';
+    });
+  }, 1000);
+}
 </script>
 </body>
 </html>
-
