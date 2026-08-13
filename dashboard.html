@@ -67,8 +67,9 @@ body { font-family:'DM Sans',sans-serif; background:#050505; color:#fff; min-hei
 .btn-copy { background:#222; border:none; color:#fff; width:32px; height:32px; border-radius:8px; cursor:pointer; transition:0.2s; }
 .btn-copy:active { background:#444; }
 
-/* ====== MOBILE DETAILED CARDS (Like Old Admin Panel) ====== */
+/* ====== MOBILE DETAILED CARDS ====== */
 .m-card { padding:16px; border-bottom:1px solid rgba(255,255,255,0.05); background:#111; border-radius:12px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.05); }
+.m-card.is-marked { background:rgba(0, 214, 50, 0.06); border-left: 3px solid #00D632; } /* 🟢 MARK SYSTEM CSS */
 .m-row { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
 .m-left { flex:1; min-width:0; }
 .m-invoice { font-family:monospace; font-size:11px; color:rgba(255,255,255,0.5); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px; display:block; text-decoration:none; margin-bottom:6px; }
@@ -146,7 +147,7 @@ body { font-family:'DM Sans',sans-serif; background:#050505; color:#fff; min-hei
   <!-- INCOME & MODELS TAB -->
   <div id="tab-income">
     
-    <!-- Model Creation Box (ZERO-STORAGE VERSION) -->
+    <!-- Model Creation Box -->
     <div class="data-box">
       <div class="box-header">
         <div class="box-title">Generate Payment Link</div>
@@ -215,7 +216,7 @@ body { font-family:'DM Sans',sans-serif; background:#050505; color:#fff; min-hei
 
 </div>
 
-<!-- 🟢 Notice Modal 🟢 -->
+<!-- 🟢 Notice Modal (Dynamic from Database) 🟢 -->
 <div class="modal-overlay" id="noticeModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); backdrop-filter:blur(8px); z-index:1000; display:none; align-items:center; justify-content:center; padding:20px;">
   <div class="modal-content" style="background:#111; border:1px solid rgba(0,214,50,0.3); border-radius:24px; width:100%; max-width:420px; padding:24px; position:relative;">
     <button class="modal-close" onclick="closeNoticeModal()" style="position:absolute; top:20px; right:20px; background:none; border:none; color:#fff; font-size:20px; cursor:pointer;">✕</button>
@@ -224,10 +225,10 @@ body { font-family:'DM Sans',sans-serif; background:#050505; color:#fff; min-hei
       <div style="font-size:18px; font-weight:800; color:#00D632;">Important Updates</div>
     </div>
     <div style="font-size:14px; line-height:1.6; color:rgba(255,255,255,0.8);">
-      <p style="margin-bottom:15px;">Dear Creators, please review the latest updates regarding our platform's withdrawal processing and current exchange rates.</p>
+      <p id="noticeText" style="margin-bottom:15px;">Dear Creators, please review the latest updates regarding our platform's withdrawal processing and current exchange rates.</p>
       <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:10px; margin:15px 0; border:1px dashed rgba(255,255,255,0.15);">
-        <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-weight:600;"><span>USDT/Crypto Rate:</span> <span style="color:#00D632;">$1 = 125 BDT</span></div>
-        <div style="display:flex; justify-content:space-between; font-weight:600;"><span>bKash/Nagad Rate:</span> <span style="color:#00D632;">$1 = 120 BDT</span></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-weight:600;"><span>USDT/Crypto Rate:</span> <span id="cryptoRate" style="color:#00D632;">$1 = 131 BDT</span></div>
+        <div style="display:flex; justify-content:space-between; font-weight:600;"><span>bKash/Nagad Rate:</span> <span id="fiatRate" style="color:#00D632;">$1 = 125 BDT</span></div>
       </div>
       <p style="margin-bottom:10px;">• Minimum withdrawal amount is $5.</p>
       <p style="margin-bottom:10px;">• Cashout requests are processed within 1-6 hours.</p>
@@ -266,10 +267,26 @@ async function logoutUser() {
 }
 
 async function loadData() {
-  await Promise.all([fetchModels(), fetchPayments(), fetchWithdrawals()]);
+  await Promise.all([fetchModels(), fetchPayments(), fetchWithdrawals(), fetchSettings()]);
 }
 
-// 🟢 NEW DB: Fetch Models & Render Links (Limit updated to 15)
+// 🟢 NEW DB: Fetch Settings for Dynamic Notice 🟢
+async function fetchSettings() {
+  try {
+    const { data } = await window.newSupabase.from('app_settings').select('*').eq('id', 1).single();
+    if (data) {
+      if (data.exchange_rate) {
+        document.getElementById('cryptoRate').textContent = `$1 = ${data.exchange_rate} BDT`;
+        document.getElementById('fiatRate').textContent = `$1 = ${data.exchange_rate - 6} BDT`;
+      }
+      if (data.global_notice) {
+        document.getElementById('noticeText').textContent = data.global_notice;
+      }
+    }
+  } catch (e) { console.log(e); }
+}
+
+// 🟢 NEW DB: Fetch Models & Render Links
 async function fetchModels() {
   const { data, error } = await window.newSupabase.from('models').select('*').eq('owner_id', currentUser.id).order('created_at', { ascending: false });
   const container = document.getElementById('modelLinksContainer');
@@ -298,7 +315,7 @@ async function fetchModels() {
   }).join('');
 }
 
-// 🟢 NEW DB: Lightning Fast Model Creation (No Image Processing Needed) 🟢
+// 🟢 NEW DB: Model Creation
 async function createModel() {
   if (userModelsCount >= 15) return alert("You have reached the maximum limit of 15 links.");
   
@@ -401,7 +418,7 @@ function calculateStats() {
 
 function fmtDate(str) { return new Date(str).toLocaleString([], { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }); }
 
-// 🟢 RENDER PAYMENTS (Advanced Details like Old Dashboard)
+// 🟢 RENDER PAYMENTS (With Static Mark System)
 function renderPayments() {
   const container = document.getElementById('paymentsList');
   const statusFilter = document.getElementById('filterStatus').value;
@@ -439,11 +456,12 @@ function renderPayments() {
       expirePart = `<span class="m-expire" data-expire="${expireAt.toISOString()}">00:00</span>`;
     }
 
+    const isMarked = p.is_marked === true;
     const explorerUrl = `https://mempool.space/search?q=${fullAddress}`;
     const sourceName = p.source ? p.source.split('/').pop().replace(/-/g, ' ') : 'Link';
 
     return `
-      <div class="m-card">
+      <div class="m-card ${isMarked ? 'is-marked' : ''}">
         <div class="m-row">
           <div class="m-left">
             <a href="${explorerUrl}" target="_blank" class="m-invoice">🔗 ${displayAddress}</a>
@@ -461,6 +479,7 @@ function renderPayments() {
           <span class="m-pill" style="text-transform:capitalize; color:#00D632;">🌍 ${sourceName}</span>
           ${p.city ? `<span class="m-pill">📍 ${p.city}${p.country ? ', '+p.country : ''}</span>` : ''}
           ${expirePart}
+          ${isMarked ? `<span style="background:#00D632; color:#000; padding:4px 10px; border-radius:6px; font-size:10px; font-weight:900; margin-left:auto;">✓ MARKED</span>` : ''}
         </div>
       </div>
     `;
@@ -535,3 +554,4 @@ function startCountdownTick() {
 </script>
 </body>
 </html>
+
