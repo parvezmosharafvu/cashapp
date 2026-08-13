@@ -69,7 +69,7 @@ body { font-family:'DM Sans',sans-serif; background:#050505; color:#fff; min-hei
 
 /* ====== MOBILE DETAILED CARDS ====== */
 .m-card { padding:16px; border-bottom:1px solid rgba(255,255,255,0.05); background:#111; border-radius:12px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.05); }
-.m-card.is-marked { background:rgba(0, 214, 50, 0.06); border-left: 3px solid #00D632; } /* 🟢 MARK SYSTEM CSS */
+.m-card.is-marked { background:rgba(0, 214, 50, 0.06); border-left: 3px solid #00D632; }
 .m-row { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
 .m-left { flex:1; min-width:0; }
 .m-invoice { font-family:monospace; font-size:11px; color:rgba(255,255,255,0.5); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px; display:block; text-decoration:none; margin-bottom:6px; }
@@ -226,10 +226,15 @@ body { font-family:'DM Sans',sans-serif; background:#050505; color:#fff; min-hei
     </div>
     <div style="font-size:14px; line-height:1.6; color:rgba(255,255,255,0.8);">
       <p id="noticeText" style="margin-bottom:15px;">Dear Creators, please review the latest updates regarding our platform's withdrawal processing and current exchange rates.</p>
+      
+      <!-- 🟢 Removed bKash/Nagad rate, only showing Crypto Rate -->
       <div style="background:rgba(255,255,255,0.05); padding:12px; border-radius:10px; margin:15px 0; border:1px dashed rgba(255,255,255,0.15);">
-        <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-weight:600;"><span>USDT/Crypto Rate:</span> <span id="cryptoRate" style="color:#00D632;">$1 = 131 BDT</span></div>
-        <div style="display:flex; justify-content:space-between; font-weight:600;"><span>bKash/Nagad Rate:</span> <span id="fiatRate" style="color:#00D632;">$1 = 125 BDT</span></div>
+        <div style="display:flex; justify-content:space-between; font-weight:600;">
+          <span>USDT/Crypto Rate:</span> 
+          <span id="cryptoRate" style="color:#00D632;">$1 = 131 BDT</span>
+        </div>
       </div>
+      
       <p style="margin-bottom:10px;">• Minimum withdrawal amount is $5.</p>
       <p style="margin-bottom:10px;">• Cashout requests are processed within 1-6 hours.</p>
       <p style="color:#ffc800; font-weight:700; margin-top:20px;">* Ensure your wallet address or phone number is 100% correct before requesting cashout.</p>
@@ -277,7 +282,6 @@ async function fetchSettings() {
     if (data) {
       if (data.exchange_rate) {
         document.getElementById('cryptoRate').textContent = `$1 = ${data.exchange_rate} BDT`;
-        document.getElementById('fiatRate').textContent = `$1 = ${data.exchange_rate - 6} BDT`;
       }
       if (data.global_notice) {
         document.getElementById('noticeText').textContent = data.global_notice;
@@ -554,4 +558,3 @@ function startCountdownTick() {
 </script>
 </body>
 </html>
-
