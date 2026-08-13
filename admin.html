@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Master Admin - Global Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet">
+<!-- Supabase CDN -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -146,8 +147,8 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
     <div class="login-logo">★</div>
     <div class="login-title">Master Admin</div>
     <div class="login-sub">Global Dashboard</div>
-    <div class="field-label">Username</div>
-    <input type="text" id="loginUser" class="field-input" placeholder="Enter username">
+    <div class="field-label">Admin Email</div>
+    <input type="email" id="loginUser" class="field-input" placeholder="Enter admin email">
     <div class="field-label">Password</div>
     <input type="password" id="loginPass" class="field-input" placeholder="Enter password" onkeydown="if(event.key==='Enter') doLogin()">
     <button class="login-btn" onclick="doLogin()">Secure Login →</button>
@@ -329,7 +330,8 @@ const OLD_DB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 const NEW_DB_URL = 'https://ohwzmxwsphsfzudmlins.supabase.co';
 const NEW_DB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9od3pteHdzcGhzZnp1ZG1saW5zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMzE0MTksImV4cCI6MjEwMTYwNzQxOX0.frTl7qnDx7SK2IBMQxFCkKGe5u4XAQweRxPhQ-2r8rU';
 
-const ADMIN_USER = 'master';
+const newSupabase = window.supabase.createClient(NEW_DB_URL, NEW_DB_KEY);
+
 const PER_PAGE = 30;
 
 let allPayments = [];
@@ -351,15 +353,15 @@ function extractModelName(urlStr) {
   return urlStr;
 }
 
-// 🟢 HIGH-SECURITY DATABASE LOGIN (Using Old DB) 🟢
+// 🟢 NEW DB: SUPABASE AUTH LOGIN 🟢
 async function doLogin() {
-  const u = document.getElementById('loginUser').value.trim();
+  const email = document.getElementById('loginUser').value.trim();
   const p = document.getElementById('loginPass').value;
   const btn = document.querySelector('.login-btn');
 
-  if (u !== ADMIN_USER || p === '') {
+  if (!email || p === '') {
     const err = document.getElementById('loginError');
-    err.textContent = "Access Denied: Invalid Username";
+    err.textContent = "Please enter email and password";
     err.style.display = 'block';
     return;
   }
@@ -367,40 +369,27 @@ async function doLogin() {
   btn.textContent = "Checking...";
   btn.disabled = true;
 
-  try {
-    const res = await fetch(`${OLD_DB_URL}/rest/v1/rpc/toggle_mark`, {
-      method: 'POST',
-      headers: {
-        'apikey': OLD_DB_KEY, 
-        'Authorization': `Bearer ${OLD_DB_KEY}`, 
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ p_invoice_id: 'fake_login_verification', p_is_marked: false, p_pass: p })
-    });
+  const { data, error } = await newSupabase.auth.signInWithPassword({ email: email, password: p });
 
-    if (res.ok) {
-      sessionStorage.setItem('masterAuth', 'true');
-      sessionStorage.setItem('masterPass', p); 
-      document.getElementById('loginPage').style.display = 'none';
-      document.getElementById('dashboard').style.display = 'block';
-      loadData();
-      startCountdownTick();
-    } else {
-      const err = document.getElementById('loginError');
-      err.textContent = "Access Denied: Wrong Password!";
-      err.style.display = 'block';
-    }
-  } catch (e) {
+  if (error) {
     const err = document.getElementById('loginError');
-    err.textContent = "Network Error! Check your connection.";
+    err.textContent = "Access Denied: " + error.message;
     err.style.display = 'block';
+  } else {
+    sessionStorage.setItem('masterAuth', 'true');
+    sessionStorage.setItem('masterPass', p); 
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadData();
+    startCountdownTick();
   }
 
   btn.textContent = "Secure Login →";
   btn.disabled = false;
 }
 
-function doLogout() {
+async function doLogout() {
+  await newSupabase.auth.signOut();
   sessionStorage.removeItem('masterAuth');
   sessionStorage.removeItem('masterPass');
   location.reload();
@@ -438,7 +427,6 @@ async function updateStats() {
       document.getElementById('statProfit').textContent = '$' + parseFloat(data.total_profit_saved || 0).toFixed(2);
       document.getElementById('statAvailable').textContent = '$' + globalAvailable.toFixed(2);
       
-      // Calculate pending withdrawals directly from NEW DB Data
       const pendingWDs = allWithdrawals.filter(w => w.status === 'pending').length;
       document.getElementById('statPendingWD').textContent = pendingWDs + ' requests';
     }
@@ -473,7 +461,7 @@ async function fetchWithdrawals() {
   try {
     let allFetchedData = [], offset = 0, limit = 1000, keepFetching = true;
     while(keepFetching) {
-      const res = await fetch(`${NEW_DB_URL}/rest/v1/withdrawals?select=*,owner_id(email)&order=created_at.desc&limit=${limit}&offset=${offset}`, {
+      const res = await fetch(`${NEW_DB_URL}/rest/v1/withdrawals?select=*&order=created_at.desc&limit=${limit}&offset=${offset}`, {
         headers: { 'apikey': NEW_DB_KEY, 'Authorization': `Bearer ${NEW_DB_KEY}` }
       });
       let data = await res.json();
@@ -640,19 +628,35 @@ async function toggleMark(invoiceId, currentStatus, btnElement) {
   } catch(e) { btnElement.disabled = false; btnElement.textContent = 'Mark'; }
 }
 
-// 🟢 NEW DB: Mark Withdrawal Completed 🟢
+// 🟢 NEW DB: Mark Withdrawal Completed (SECURE RPC) 🟢
 async function completeWithdrawal(id, btnElement) {
   if(!confirm("Mark this as Completed?")) return;
   btnElement.disabled = true; btnElement.textContent = 'Processing...';
+  
   try {
-    const res = await fetch(`${NEW_DB_URL}/rest/v1/withdrawals?id=eq.${id}`, {
-      method: 'PATCH',
-      headers: { 'apikey': NEW_DB_KEY, 'Authorization': `Bearer ${NEW_DB_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'completed' })
+    const res = await fetch(`${NEW_DB_URL}/rest/v1/rpc/complete_withdrawal`, {
+      method: 'POST',
+      headers: { 
+          'apikey': NEW_DB_KEY, 
+          'Authorization': `Bearer ${NEW_DB_KEY}`, 
+          'Content-Type': 'application/json' 
+      },
+      body: JSON.stringify({ p_id: id, p_pass: sessionStorage.getItem('masterPass') })
     });
-    if (res.ok) { loadData(); } 
-    else { btnElement.disabled = false; btnElement.textContent = 'Mark Paid'; }
-  } catch(e) { btnElement.disabled = false; btnElement.textContent = 'Mark Paid'; }
+    
+    if (res.ok) { 
+        loadData(); 
+    } else { 
+        const err = await res.json();
+        alert(`❌ Action Failed: ${err.message || "Unauthorized"}`);
+        btnElement.disabled = false; 
+        btnElement.textContent = 'Mark Paid'; 
+    }
+  } catch(e) { 
+      alert("❌ Network Error!");
+      btnElement.disabled = false; 
+      btnElement.textContent = 'Mark Paid'; 
+  }
 }
 
 function resetAndRenderPayments() { currentPayPage = 1; renderPayments(); }
@@ -793,11 +797,15 @@ function renderWithdrawals() {
   tbody.innerHTML = allWithdrawals.map(w => {
     const isCompleted = w.status === 'completed';
     const isProfit = w.source === 'Master Admin' && w.method === 'Profit';
+    const isSys = w.source === 'Master Admin' && w.method === 'System';
+    if(isSys) return ''; 
     
-    // 🟢 Fetch email from linked owner_id in New DB 🟢
-    const model = isProfit ? 'MY PROFIT' : (w.owner_id ? w.owner_id.email : 'Unknown User').toUpperCase();
+    // Check if w.owner_id is available and has an email properly populated (due to cross db complexity)
+    let userEmail = 'Unknown User';
+    if (w.owner_id && w.owner_id.email) userEmail = w.owner_id.email;
+    const model = isProfit ? 'MY PROFIT' : userEmail.toUpperCase();
+    
     const badgeClass = isProfit ? 'model-badge-profit' : 'model-badge';
-    
     let methodStyle = '#00D632'; 
     if (w.method === 'Binance') methodStyle = '#f3ba2f'; else if (w.method === 'bKash') methodStyle = '#e2136e'; else if (w.method === 'Nagad') methodStyle = '#f76a20';
     
@@ -817,11 +825,14 @@ function renderWithdrawals() {
   mList.innerHTML = allWithdrawals.map(w => {
     const isCompleted = w.status === 'completed';
     const isProfit = w.source === 'Master Admin' && w.method === 'Profit';
+    const isSys = w.source === 'Master Admin' && w.method === 'System';
+    if(isSys) return '';
     
-    // 🟢 Fetch email from linked owner_id in New DB 🟢
-    const model = isProfit ? 'MY PROFIT' : (w.owner_id ? w.owner_id.email : 'Unknown User').toUpperCase();
+    let userEmail = 'Unknown User';
+    if (w.owner_id && w.owner_id.email) userEmail = w.owner_id.email;
+    const model = isProfit ? 'MY PROFIT' : userEmail.toUpperCase();
+    
     const badgeClass = isProfit ? 'model-badge-profit' : 'model-badge';
-    
     let methodStyle = '#00D632';
     if (w.method === 'Binance') methodStyle = '#f3ba2f'; else if (w.method === 'bKash') methodStyle = '#e2136e'; else if (w.method === 'Nagad') methodStyle = '#f76a20';
     
