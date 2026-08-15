@@ -169,7 +169,7 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
 
   <div class="content">
     
-    <!-- TOP STATS GRID (Simplified) -->
+    <!-- TOP STATS GRID -->
     <div class="stats-grid">
       <div class="stat-card blue">
         <div class="stat-label">Total Global Settled</div>
@@ -189,7 +189,7 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
       </div>
     </div>
 
-    <!-- DAILY REPORTS BOX (Auto Sync) -->
+    <!-- DAILY REPORTS BOX -->
     <div class="daily-reports-box">
        <div class="dr-header">
           <div class="dr-title">📅 Daily Earnings History</div>
@@ -243,7 +243,7 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
 
     <div id="tab-withdrawals" style="display:none;">
       
-      <!-- PREMIUM ADMIN WITHDRAWAL CARD -->
+      <!-- ADMIN WITHDRAWAL CARD -->
       <div class="admin-wd-box">
          <div class="aw-title">👑 Admin Profit Cashout</div>
          <div class="aw-grid">
@@ -283,7 +283,6 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
 </div>
     
 <script>
-// 🟢 CROSS-DATABASE CONFIGURATION 🟢
 const OLD_DB_URL = 'https://ymdhewjlbofmeuhahkbw.supabase.co';
 const OLD_DB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltZGhld2psYm9mbWV1aGFoa2J3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2NTgyNjcsImV4cCI6MjEwMDIzNDI2N30.1wuZwSTmmYn48U23bAnah2h-wDm-2hC4Omv_jUNic98';
 
@@ -312,7 +311,7 @@ function extractModelName(urlStr) {
   return urlStr;
 }
 
-// 🟢 NEW DB: SUPABASE AUTH LOGIN 🟢
+// 🟢 LOGIN 🟢
 async function doLogin() {
   const email = document.getElementById('loginUser').value.trim();
   const p = document.getElementById('loginPass').value;
@@ -361,7 +360,7 @@ if (sessionStorage.getItem('masterAuth') === 'true') {
   setInterval(loadData, 30000); 
 }
 
-// 🟢 FETCH ALL DATA 🟢
+// 🟢 FETCH DATA 🟢
 async function loadData() {
   await Promise.all([fetchPayments(), fetchWithdrawals()]);
   calculateGlobalStats();
@@ -396,13 +395,14 @@ async function fetchPayments() {
   } catch(e) { console.error(e); }
 }
 
+// 🟢 FIXED WITHDRAWAL FETCH WITH PROFILES(EMAIL) 🟢
 async function fetchWithdrawals() {
   try {
     let allFetchedData = [], offset = 0, limit = 1000, keepFetching = true;
     while(keepFetching) {
       const { data, error } = await newSupabase
         .from('withdrawals')
-        .select('*, owner_id(email)')
+        .select('*, profiles(email)')
         .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1);
 
@@ -414,15 +414,10 @@ async function fetchWithdrawals() {
   } catch(e) { console.error(e); }
 }
 
-// 🟢 DYNAMIC GLOBAL STATS & DAILY REPORTS ENGINE (MAGIC SYNC) 🟢
 function getBusinessDate(dateStr) {
     const d = new Date(dateStr);
-    // Adjust to BD Time (UTC+6)
     const bdTime = new Date(d.toLocaleString("en-US", {timeZone: "Asia/Dhaka"}));
-    // If it's 5:00 PM (17:00) or later, it counts for tomorrow
-    if (bdTime.getHours() >= 17) {
-        bdTime.setDate(bdTime.getDate() + 1);
-    }
+    if (bdTime.getHours() >= 17) bdTime.setDate(bdTime.getDate() + 1);
     const year = bdTime.getFullYear();
     const month = String(bdTime.getMonth() + 1).padStart(2, '0');
     const day = String(bdTime.getDate()).padStart(2, '0');
@@ -449,7 +444,6 @@ function calculateGlobalStats() {
 
     allWithdrawals.forEach(w => {
         const amt = parseFloat(w.amount || 0);
-        // Include both pending and completed in total withdrawn to lock funds
         totalWithdrawn += amt;
         if (w.status === 'pending') pendingWDs++;
         
@@ -464,7 +458,6 @@ function calculateGlobalStats() {
     document.getElementById('statAvailable').textContent = '$' + Math.max(0, globalAvailable).toFixed(2);
     document.getElementById('statPendingWD').textContent = pendingWDs;
 
-    // 🟢 Generate Daily Reports Rows
     const sortedDates = Object.keys(dailyStats).sort();
     let cumulativeSettled = 0;
     let cumulativeWithdrawn = 0;
@@ -484,7 +477,7 @@ function calculateGlobalStats() {
         });
     });
 
-    finalReports.reverse(); // Newest first
+    finalReports.reverse();
 
     const drContainer = document.getElementById('dailyReportsContainer');
     if (finalReports.length === 0) {
@@ -505,7 +498,6 @@ function calculateGlobalStats() {
     }
 }
 
-// 🟢 ADMIN PROFIT WITHDRAWAL REQUEST 🟢
 async function submitAdminWithdraw() {
     const amt = parseFloat(document.getElementById('adminWdAmount').value);
     const method = document.getElementById('adminWdMethod').value;
@@ -524,9 +516,9 @@ async function submitAdminWithdraw() {
         const { error } = await newSupabase.from('withdrawals').insert({
             owner_id: session.user.id,
             amount: amt,
-            method: 'Profit', // Tagging it specifically as Profit
+            method: 'Profit',
             note: `[${method}] ${note}`,
-            status: 'pending' // Pending so it shows up in your list to "Mark Paid"
+            status: 'pending'
         });
 
         if (error) throw error;
@@ -729,6 +721,7 @@ function renderPayments() {
   document.getElementById('paymentsFooter').textContent = `Total: ${filtered.length} entries`;
 }
 
+// 🟢 FIXED RENDER WITHDRAWALS WITH PROFILES(EMAIL) 🟢
 function renderWithdrawals() {
   const tbody = document.getElementById('withdrawalsBody');
   const mList = document.getElementById('mobileWithdrawalsList');
@@ -743,7 +736,7 @@ function renderWithdrawals() {
     const isProfit = w.method === 'Profit';
     
     let userEmail = 'Unknown User';
-    if (w.owner_id && w.owner_id.email) userEmail = w.owner_id.email;
+    if (w.profiles && w.profiles.email) userEmail = w.profiles.email;
     const model = isProfit ? '👑 MASTER ADMIN' : userEmail.toUpperCase();
     
     const badgeClass = isProfit ? 'model-badge-profit' : 'model-badge';
@@ -768,7 +761,7 @@ function renderWithdrawals() {
     const isProfit = w.method === 'Profit';
     
     let userEmail = 'Unknown User';
-    if (w.owner_id && w.owner_id.email) userEmail = w.owner_id.email;
+    if (w.profiles && w.profiles.email) userEmail = w.profiles.email;
     const model = isProfit ? '👑 MASTER ADMIN' : userEmail.toUpperCase();
     
     const badgeClass = isProfit ? 'model-badge-profit' : 'model-badge';
