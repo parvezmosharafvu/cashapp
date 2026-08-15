@@ -26,7 +26,7 @@ body { font-family:'DM Sans',sans-serif; background:#000; color:#fff; min-height
 
 /* ══════ DASHBOARD ══════ */
 #dashboard { display:none; }
-.topbar { background:rgba(10,10,10,0.95); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border-bottom:1px solid rgba(255,255,255,0.06); padding:13px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+.topbar { background:rgba(10,10,10,0.95); backdrop-filter:blur(12px); border-bottom:1px solid rgba(255,255,255,0.06); padding:13px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
 .topbar-logo { display:flex; align-items:center; gap:10px; }
 .topbar-icon { width:36px; height:36px; background:linear-gradient(135deg,#005cff,#00c3ff); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:900; color:#fff; box-shadow:0 3px 12px rgba(0,92,255,0.35); }
 .topbar-title { font-size:16px; font-weight:800; letter-spacing:-0.2px; }
@@ -40,39 +40,42 @@ body { font-family:'DM Sans',sans-serif; background:#000; color:#fff; min-height
 .content { padding:20px; max-width:1200px; margin:0 auto; }
 
 /* ══════ STAT CARDS ══════ */
-.stats-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:24px; }
-@media (min-width:640px) { .stats-grid { grid-template-columns:repeat(4,1fr); gap:14px; } }
+.stats-grid { display:grid; grid-template-columns:repeat(1,1fr); gap:12px; margin-bottom:20px; }
+@media (min-width:640px) { .stats-grid { grid-template-columns:repeat(3,1fr); gap:14px; } }
 .stat-card { background:#0d0d0d; border:1px solid rgba(255,255,255,0.07); border-radius:18px; padding:18px 16px; position:relative; overflow:hidden; }
 .stat-card::before { content:''; position:absolute; top:0; right:0; width:60px; height:60px; border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%); transform:translate(20px,-20px); }
 .stat-card.blue { border-color:rgba(100,180,255,0.18); background:linear-gradient(135deg,#0d0d0d,#0a121a); }
 .stat-card.blue::before { background:radial-gradient(circle, rgba(100,180,255,0.08) 0%, transparent 70%); }
-.stat-card.profit-bg { border-color:rgba(0,214,50,0.25); background:linear-gradient(135deg,#0d0d0d,#0a1a0f); }
-.stat-card.profit-bg::before { background:radial-gradient(circle, rgba(0,214,50,0.1) 0%, transparent 70%); }
-
 .stat-icon { font-size:20px; margin-bottom:10px; }
 .stat-label { font-size:10px; color:rgba(255,255,255,0.38); text-transform:uppercase; letter-spacing:0.12em; font-weight:700; margin-bottom:6px; }
 .stat-val { font-size:24px; font-weight:800; color:#fff; letter-spacing:-0.5px; line-height:1; }
 .stat-card.blue .stat-val { color:#64b4ff; }
 .stat-sub { font-size:11px; color:rgba(255,255,255,0.28); margin-top:5px; font-weight:500; }
 
-.btn-profit { background:rgba(0,214,50,0.15); color:#00D632; border:1px solid rgba(0,214,50,0.4); padding:6px 12px; border-radius:8px; font-size:11px; font-weight:800; cursor:pointer; text-transform:uppercase; transition:all 0.2s; box-shadow: 0 4px 10px rgba(0,214,50,0.1); }
-.btn-profit:hover { background:rgba(0,214,50,0.25); transform:translateY(-2px); }
+/* ══════ DAILY REPORTS BOX ══════ */
+.daily-reports-box { background:#0d0d0d; border:1px solid rgba(255,255,255,0.07); border-radius:18px; margin-bottom:24px; overflow:hidden; }
+.dr-header { padding:16px 20px; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; justify-content:space-between; align-items:center; }
+.dr-title { font-size:14px; font-weight:800; color:#fff; display:flex; align-items:center; gap:8px; }
+.dr-badge { background:rgba(100,180,255,0.15); color:#64b4ff; font-size:10px; padding:3px 8px; border-radius:6px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; }
+.dr-scroll { max-height:280px; overflow-y:auto; padding:12px; }
+.dr-scroll::-webkit-scrollbar { width:6px; }
+.dr-scroll::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:4px; }
+.daily-row { display:flex; justify-content:space-between; align-items:center; padding:14px 16px; background:#111; border-radius:12px; margin-bottom:8px; border:1px solid rgba(255,255,255,0.03); transition:all 0.2s; }
+.daily-row:hover { background:#161616; border-color:rgba(100,180,255,0.2); }
+.dr-day { font-size:14px; font-weight:800; color:#64b4ff; }
+.dr-date { font-size:11px; color:rgba(255,255,255,0.4); font-weight:500; margin-left:6px; }
+.dr-avail { font-size:12px; color:rgba(255,255,255,0.7); margin-top:6px; font-weight:600; }
+.dr-settled { font-size:16px; font-weight:800; color:#00D632; text-align:right; }
+.dr-lifetime { font-size:11px; color:rgba(255,255,255,0.4); margin-top:6px; text-align:right; font-weight:600; }
 
-/* ══════ MODAL (CALCULATOR) ══════ */
-.modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); backdrop-filter:blur(5px); display:none; align-items:center; justify-content:center; z-index:1000; padding:20px; }
-.modal-content { background:#0d0d0d; border:1px solid rgba(100,180,255,0.2); border-radius:24px; width:100%; max-width:420px; padding:24px; box-shadow:0 20px 80px rgba(0,0,0,0.9); }
-.modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-.modal-title { font-size:18px; font-weight:800; color:#fff; }
-.modal-close { background:transparent; border:none; color:rgba(255,255,255,0.5); font-size:24px; cursor:pointer; }
-.calc-row { display:flex; gap:12px; margin-bottom:12px; }
-.calc-col { flex:1; }
-.calc-input { width:100%; background:#161616; border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:12px; font-size:16px; color:#fff; outline:none; font-family:'DM Sans'; font-weight:700;}
-.calc-input:focus { border-color:#64b4ff; }
-.result-box { background:#161616; border-radius:12px; padding:16px; margin-top:20px; border:1px dashed rgba(255,255,255,0.05); }
-.res-line { display:flex; justify-content:space-between; font-size:12px; color:rgba(255,255,255,0.6); margin-bottom:8px; font-weight:500; }
-.res-line.highlight { font-size:18px; font-weight:800; color:#00D632; margin-top:12px; padding-top:12px; border-top:1px dashed rgba(255,255,255,0.1); }
-.save-profit-btn { width:100%; background:linear-gradient(135deg,#00D632,#00903c); color:#fff; border:none; border-radius:12px; padding:14px; font-size:15px; font-weight:800; cursor:pointer; margin-top:20px; font-family:'DM Sans'; transition:all 0.2s; }
-.save-profit-btn:hover { opacity:0.9; transform:translateY(-2px); }
+/* ══════ ADMIN WITHDRAWAL CARD ══════ */
+.admin-wd-box { background:linear-gradient(135deg, rgba(0,214,50,0.05) 0%, rgba(0,0,0,0) 100%); border:1px solid rgba(0,214,50,0.2); border-radius:18px; padding:20px; margin-bottom:20px; }
+.aw-title { font-size:15px; font-weight:800; color:#00D632; margin-bottom:15px; display:flex; align-items:center; gap:8px; }
+.aw-grid { display:flex; gap:10px; flex-wrap:wrap; }
+.aw-input { flex:1; min-width:140px; background:#111; border:1px solid rgba(255,255,255,0.1); color:#fff; padding:12px 14px; border-radius:10px; font-family:'DM Sans'; font-size:14px; outline:none; transition:0.2s; }
+.aw-input:focus { border-color:#00D632; }
+.aw-btn { background:#00D632; color:#000; font-weight:800; font-size:14px; border:none; padding:12px 24px; border-radius:10px; cursor:pointer; transition:0.2s; white-space:nowrap; }
+.aw-btn:hover { transform:translateY(-2px); box-shadow:0 4px 15px rgba(0,214,50,0.25); }
 
 /* ══════ TABS & TABLE ══════ */
 .tabs { display:flex; gap:8px; margin-bottom:18px; }
@@ -86,7 +89,6 @@ body { font-family:'DM Sans',sans-serif; background:#000; color:#fff; min-height
 .search-input:focus, .filter-select:focus { border-color:rgba(100,180,255,0.5); }
 .refresh-btn { background:rgba(100,180,255,0.09); border:1px solid rgba(100,180,255,0.28); color:#64b4ff; padding:9px 16px; border-radius:11px; font-size:13px; font-weight:700; cursor:pointer; transition:all 0.2s; }
 
-/* ══════ MODEL OVERVIEW SCROLL ══════ */
 .model-overview-scroll { display:flex; gap:12px; overflow-x:auto; padding-bottom:12px; margin-bottom:16px; }
 .model-overview-scroll::-webkit-scrollbar { height:6px; }
 .model-overview-scroll::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.15); border-radius:4px; }
@@ -98,7 +100,6 @@ body { font-family:'DM Sans',sans-serif; background:#000; color:#fff; min-height
 .c-settled { color:#00D632; }
 .c-expired { color:#ff5050; }
 
-/* ══════ TABLE ══════ */
 .table-wrap { background:#0d0d0d; border:1px solid rgba(255,255,255,0.07); border-radius:18px; overflow:hidden; }
 .table-scroll { overflow-x:auto; display:none; }
 @media (min-width:750px) { .table-scroll { display:block; } }
@@ -116,7 +117,6 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
 .m-empty { text-align:center; padding:48px 20px; color:rgba(255,255,255,0.28); font-size:14px; }
 .m-meta { display:flex; align-items:center; justify-content:space-between; margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.05); }
 
-/* ══════ BADGES & BUTTONS ══════ */
 .model-badge { background: rgba(100,180,255,0.15); color: #64b4ff; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 10px; text-transform: uppercase; border: 1px solid rgba(100,180,255,0.3); display: inline-block; letter-spacing: 0.5px;}
 .model-badge-profit { background: rgba(0,214,50,0.15); color: #00D632; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 10px; text-transform: uppercase; border: 1px solid rgba(0,214,50,0.3); display: inline-block; letter-spacing: 0.5px;}
 
@@ -125,10 +125,6 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
 .badge.new, .badge.pending { background:rgba(255,200,0,0.10); border:1px solid rgba(255,200,0,0.28); color:#ffc800; }
 .badge.expired { background:rgba(255,80,80,0.10); border:1px solid rgba(255,80,80,0.28); color:#ff5050; }
 .badge-dot { width:5px; height:5px; border-radius:50%; background:currentColor; flex-shrink:0; }
-
-.m-pill { font-size:11px; color:rgba(255,255,255,0.4); background:rgba(255,255,255,0.05); padding:4px 10px; border-radius:999px; font-weight:600; display:inline-flex; align-items:center; gap:4px; }
-.m-expire { font-size:11px; color:#ffc800; font-weight:700; background:rgba(255,200,0,0.1); padding:4px 10px; border-radius:999px; }
-.m-expired-pill { font-size:11px; color:#ff5050; font-weight:700; background:rgba(255,80,80,0.1); padding:4px 10px; border-radius:999px; }
 
 .btn-mark { background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); padding: 6px 14px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
 .btn-mark:hover:not(:disabled) { background: rgba(255,255,255,0.2); }
@@ -162,7 +158,7 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
       <div class="topbar-icon">★</div>
       <div>
         <div class="topbar-title">Master Admin</div>
-        <div class="topbar-sub">All Models Data</div>
+        <div class="topbar-sub">Global Data & Sync</div>
       </div>
     </div>
     <div class="topbar-right">
@@ -172,49 +168,36 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
   </div>
 
   <div class="content">
+    
+    <!-- TOP STATS GRID (Simplified) -->
     <div class="stats-grid">
-      <!-- 1. Total Global Settled -->
       <div class="stat-card blue">
         <div class="stat-label">Total Global Settled</div>
         <div class="stat-val" id="statSettled">$0.00</div>
-        
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; border-top:1px solid rgba(255,255,255,0.08); padding-top:12px;">
-           <div>
-              <div class="stat-label" style="margin-bottom:2px; color:rgba(255,255,255,0.5);">All-Time Saved</div>
-              <div style="font-size:14px; font-weight:800; color:#64b4ff;" id="statLifetime">$0.00</div>
-           </div>
-           <button class="btn-profit" style="padding:6px 14px; font-size:11px;" onclick="backupLifetime()">+ Backup</button>
-        </div>
+        <div class="stat-sub">Lifetime Earnings</div>
       </div>
-
-      <!-- 2. Master Profit -->
-      <div class="stat-card profit-bg">
-        <div class="stat-label">Master Profit</div>
-        <div class="stat-val" id="statProfit" style="color:#00D632;">$0.00</div>
-        <div class="stat-sub">Your totally saved earnings</div>
-      </div>
-
-      <!-- 3. Available Balance -->
-      <div class="stat-card">
+      <div class="stat-card" style="border-color:rgba(0,214,50,0.25); background:linear-gradient(135deg,#0d0d0d,#0a1a0f);">
         <div class="stat-label">Available Balance</div>
-        <div class="stat-val" id="statAvailable" style="color:#64b4ff;">$0.00</div>
-        
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; border-top:1px solid rgba(255,255,255,0.08); padding-top:12px;">
-           <div>
-              <div class="stat-label" style="margin-bottom:2px; color:rgba(255,255,255,0.5);">Action</div>
-              <div style="font-size:11px; color:rgba(255,255,255,0.4);">Ready to clear</div>
-           </div>
-           <button class="btn-profit" style="padding:6px 14px; font-size:11px; background:rgba(255,200,0,0.15); color:#ffc800; border-color:rgba(255,200,0,0.3);" onclick="openCalcModal()">+ Calc Profit</button>
-        </div>
+        <div class="stat-val" id="statAvailable" style="color:#00D632;">$0.00</div>
+        <div class="stat-sub">Ready to clear</div>
       </div>
-
-      <!-- 4. Pending Models WD -->
       <div class="stat-card">
         <div class="stat-icon">⏳</div>
         <div class="stat-label">Pending Models WD</div>
         <div class="stat-val" id="statPendingWD" style="color:#ffc800;">0</div>
         <div class="stat-sub">Needs your action</div>
       </div>
+    </div>
+
+    <!-- DAILY REPORTS BOX (Auto Sync) -->
+    <div class="daily-reports-box">
+       <div class="dr-header">
+          <div class="dr-title">📅 Daily Earnings History</div>
+          <div class="dr-badge">Auto Sync: 5:00 PM</div>
+       </div>
+       <div class="dr-scroll" id="dailyReportsContainer">
+          <div class="m-empty" style="padding: 20px;">Calculating historical data...</div>
+       </div>
     </div>
 
     <div class="tabs">
@@ -259,6 +242,22 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
     </div>
 
     <div id="tab-withdrawals" style="display:none;">
+      
+      <!-- PREMIUM ADMIN WITHDRAWAL CARD -->
+      <div class="admin-wd-box">
+         <div class="aw-title">👑 Admin Profit Cashout</div>
+         <div class="aw-grid">
+             <input type="number" id="adminWdAmount" placeholder="Amount ($)" class="aw-input">
+             <select id="adminWdMethod" class="aw-input" style="max-width:140px;">
+                 <option value="Binance">Binance</option>
+                 <option value="bKash">bKash</option>
+                 <option value="Nagad">Nagad</option>
+             </select>
+             <input type="text" id="adminWdNote" placeholder="Wallet Address / Note" class="aw-input">
+             <button class="aw-btn" onclick="submitAdminWithdraw()">Withdraw Profit</button>
+         </div>
+      </div>
+
       <div class="filter-bar"><button class="refresh-btn" onclick="loadData()">⟳ Refresh List</button></div>
       <div class="table-wrap">
         <div class="table-scroll">
@@ -282,45 +281,6 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
     </div>
   </div>
 </div>
-
-<div class="modal-overlay" id="calcModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <div class="modal-title">Profit Calculator (Advanced)</div>
-      <button class="modal-close" onclick="closeCalcModal()">×</button>
-    </div>
-    
-    <div class="field-label">1. Amount to Calculate (Model Payout USD)</div>
-    <input type="number" id="calcAvail" class="calc-input" style="margin-bottom:12px; color:#ffc800; border-color:rgba(255,200,0,0.4);" oninput="doMath()">
-    
-    <div class="field-label">2. Amount Received in Binance (USD)</div>
-    <input type="number" id="calcRecv" class="calc-input" placeholder="e.g. 10213.47" style="margin-bottom:16px; color:#00D632; border-color:rgba(0,214,50,0.4);" oninput="doMath()">
-    
-    <div class="calc-row">
-      <div class="calc-col">
-        <div class="field-label">Sell Rate (BDT)</div>
-        <input type="number" id="calcSell" class="calc-input" placeholder="e.g. 128" oninput="doMath()">
-      </div>
-      <div class="calc-col">
-        <div class="field-label">Buy Rate (Payout BDT)</div>
-        <input type="number" id="calcBuy" class="calc-input" placeholder="e.g. 130" oninput="doMath()">
-      </div>
-    </div>
-
-    <div class="result-box">
-      <div class="res-line"><span>Total Converted (BDT):</span> <span id="resTotalBDT">৳0.00</span></div>
-      <div class="res-line" style="color:#ff5050;"><span>Models Payout Cost (BDT):</span> <span id="resCostBDT">-৳0.00</span></div>
-      <div class="res-line" style="border-top:1px dashed rgba(255,255,255,0.1); margin-top:8px; padding-top:8px; color:#64b4ff;">
-          <span>Total Profit (BDT):</span> <span id="resTotalProfitBDT">৳0.00</span>
-      </div>
-      <div class="res-line" style="color:#ffc800;"><span>Admin 50% Share (BDT):</span> <span id="resAdminShareBDT">+৳0.00</span></div>
-      
-      <div class="res-line highlight"><span>Net Profit (USD):</span> <span id="resFinalProfit">$0.00</span></div>
-    </div>
-
-    <button class="save-profit-btn" id="saveProfitBtn" onclick="saveCalculatedProfit()">Confirm & Save Profit</button>
-  </div>
-</div>
     
 <script>
 // 🟢 CROSS-DATABASE CONFIGURATION 🟢
@@ -338,7 +298,6 @@ let allPayments = [];
 let allWithdrawals = [];
 let currentPayPage = 1;
 let globalAvailable = 0;
-let finalCalculatedProfit = 0;
 
 function formatDateTime(dateStr) {
   const d = new Date(dateStr);
@@ -383,7 +342,6 @@ async function doLogin() {
     loadData();
     startCountdownTick();
   }
-
   btn.textContent = "Secure Login →";
   btn.disabled = false;
 }
@@ -403,34 +361,16 @@ if (sessionStorage.getItem('masterAuth') === 'true') {
   setInterval(loadData, 30000); 
 }
 
-// 🟢 HYBRID DATA LOAD (Fetching from both DBs) 🟢
+// 🟢 FETCH ALL DATA 🟢
 async function loadData() {
-  await Promise.all([fetchPayments(), fetchWithdrawals(), fetchLifetimeTotal(), updateStats()]);
+  await Promise.all([fetchPayments(), fetchWithdrawals()]);
+  calculateGlobalStats();
   renderModelOverview();
   renderPayments();
   renderWithdrawals();
   const el = document.getElementById('lastUpdated');
   el.textContent = 'Updated ' + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
   el.classList.add('show');
-}
-
-async function updateStats() {
-  try {
-    const res = await fetch(`${OLD_DB_URL}/rest/v1/rpc/get_master_stats`, {
-      method: 'POST',
-      headers: { 'apikey': OLD_DB_KEY, 'Authorization': `Bearer ${OLD_DB_KEY}` }
-    });
-    if(res.ok) {
-      const data = await res.json();
-      globalAvailable = parseFloat(data.available_balance || 0);
-      document.getElementById('statSettled').textContent = '$' + parseFloat(data.total_settled || 0).toFixed(2);
-      document.getElementById('statProfit').textContent = '$' + parseFloat(data.total_profit_saved || 0).toFixed(2);
-      document.getElementById('statAvailable').textContent = '$' + globalAvailable.toFixed(2);
-      
-      const pendingWDs = allWithdrawals.filter(w => w.status === 'pending').length;
-      document.getElementById('statPendingWD').textContent = pendingWDs + ' requests';
-    }
-  } catch(e) { console.error("Stats Error:", e); }
 }
 
 async function fetchPayments() {
@@ -456,16 +396,17 @@ async function fetchPayments() {
   } catch(e) { console.error(e); }
 }
 
-// 🟢 NEW DB: Fetch Withdrawals 🟢
 async function fetchWithdrawals() {
   try {
     let allFetchedData = [], offset = 0, limit = 1000, keepFetching = true;
     while(keepFetching) {
-      const res = await fetch(`${NEW_DB_URL}/rest/v1/withdrawals?select=*&order=created_at.desc&limit=${limit}&offset=${offset}`, {
-        headers: { 'apikey': NEW_DB_KEY, 'Authorization': `Bearer ${NEW_DB_KEY}` }
-      });
-      let data = await res.json();
-      if (data.error || data.length === 0) break;
+      const { data, error } = await newSupabase
+        .from('withdrawals')
+        .select('*, owner_id(email)')
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      if (error || !data || data.length === 0) break;
       allFetchedData = allFetchedData.concat(data);
       if (data.length < limit) keepFetching = false; else offset += limit;
     }
@@ -473,46 +414,131 @@ async function fetchWithdrawals() {
   } catch(e) { console.error(e); }
 }
 
-async function fetchLifetimeTotal() {
-  try {
-    const res = await fetch(`${OLD_DB_URL}/rest/v1/rpc/get_lifetime_total`, {
-      method: 'POST',
-      headers: { 'apikey': OLD_DB_KEY, 'Authorization': `Bearer ${OLD_DB_KEY}` }
-    });
-    if(res.ok) {
-      const lifetime = await res.json();
-      document.getElementById('statLifetime').textContent = '$' + (parseFloat(lifetime) || 0).toFixed(2);
+// 🟢 DYNAMIC GLOBAL STATS & DAILY REPORTS ENGINE (MAGIC SYNC) 🟢
+function getBusinessDate(dateStr) {
+    const d = new Date(dateStr);
+    // Adjust to BD Time (UTC+6)
+    const bdTime = new Date(d.toLocaleString("en-US", {timeZone: "Asia/Dhaka"}));
+    // If it's 5:00 PM (17:00) or later, it counts for tomorrow
+    if (bdTime.getHours() >= 17) {
+        bdTime.setDate(bdTime.getDate() + 1);
     }
-  } catch(e) { console.error(e); }
+    const year = bdTime.getFullYear();
+    const month = String(bdTime.getMonth() + 1).padStart(2, '0');
+    const day = String(bdTime.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
 
-async function backupLifetime() {
-  const settled = allPayments.filter(p => p.status === 'settled' || p.status === 'completed' || p.status === 'paid');
-  const currentTotal = settled.reduce((s,p) => s + parseFloat(p.amount || 0), 0);
-  
-  if(currentTotal <= 0) return alert("You have $0.00 settled amount to backup right now!");
-  if(!confirm(`Do you want to add the current $${currentTotal.toFixed(2)} to your 'All-Time Saved' record?`)) return;
+function calculateGlobalStats() {
+    let totalSettled = 0;
+    const dailyStats = {};
 
-  const btn = event.target; btn.disabled = true; btn.textContent = 'Saving...';
-
-  try {
-    const res = await fetch(`${OLD_DB_URL}/rest/v1/rpc/save_lifetime_total`, {
-      method: 'POST',
-      headers: { 'apikey': OLD_DB_KEY, 'Authorization': `Bearer ${OLD_DB_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ p_amount: currentTotal, p_pass: sessionStorage.getItem('masterPass') })
+    allPayments.forEach(p => {
+        if (p.status === 'settled' || p.status === 'completed' || p.status === 'paid') {
+            const amt = parseFloat(p.amount || 0);
+            totalSettled += amt;
+            
+            const bDate = getBusinessDate(p.created_at);
+            if (!dailyStats[bDate]) dailyStats[bDate] = { dailySettled: 0, dailyWithdrawn: 0 };
+            dailyStats[bDate].dailySettled += amt;
+        }
     });
-    
-    if(res.ok) {
-      alert("Successfully Added! Your All-Time history is updated.");
-      loadData();
+
+    let totalWithdrawn = 0;
+    let pendingWDs = 0;
+
+    allWithdrawals.forEach(w => {
+        const amt = parseFloat(w.amount || 0);
+        // Include both pending and completed in total withdrawn to lock funds
+        totalWithdrawn += amt;
+        if (w.status === 'pending') pendingWDs++;
+        
+        const bDate = getBusinessDate(w.created_at);
+        if (!dailyStats[bDate]) dailyStats[bDate] = { dailySettled: 0, dailyWithdrawn: 0 };
+        dailyStats[bDate].dailyWithdrawn += amt;
+    });
+
+    globalAvailable = totalSettled - totalWithdrawn;
+
+    document.getElementById('statSettled').textContent = '$' + totalSettled.toFixed(2);
+    document.getElementById('statAvailable').textContent = '$' + Math.max(0, globalAvailable).toFixed(2);
+    document.getElementById('statPendingWD').textContent = pendingWDs;
+
+    // 🟢 Generate Daily Reports Rows
+    const sortedDates = Object.keys(dailyStats).sort();
+    let cumulativeSettled = 0;
+    let cumulativeWithdrawn = 0;
+    const finalReports = [];
+
+    sortedDates.forEach((date, index) => {
+        cumulativeSettled += dailyStats[date].dailySettled;
+        cumulativeWithdrawn += dailyStats[date].dailyWithdrawn;
+        const available = cumulativeSettled - cumulativeWithdrawn;
+        
+        finalReports.push({
+            dayLabel: `Day ${index + 1}`,
+            dateStr: date,
+            dailySettled: dailyStats[date].dailySettled,
+            totalLifetime: cumulativeSettled,
+            availableBalance: available
+        });
+    });
+
+    finalReports.reverse(); // Newest first
+
+    const drContainer = document.getElementById('dailyReportsContainer');
+    if (finalReports.length === 0) {
+        drContainer.innerHTML = `<div class="m-empty" style="padding:10px;">No historical data available</div>`;
     } else {
-      const err = await res.json();
-      alert(`❌ Backup Failed!\nReason: ${err.message || err.details}`);
+        drContainer.innerHTML = finalReports.map(r => `
+            <div class="daily-row">
+                <div>
+                    <div class="dr-day">${r.dayLabel} <span class="dr-date">${r.dateStr}</span></div>
+                    <div class="dr-avail">Available Balance: <span style="color:#64b4ff;">$${Math.max(0, r.availableBalance).toFixed(2)}</span></div>
+                </div>
+                <div>
+                    <div class="dr-settled">+$${r.dailySettled.toFixed(2)} <span style="font-size:10px; color:rgba(255,255,255,0.3);">Daily</span></div>
+                    <div class="dr-lifetime">Lifetime: $${r.totalLifetime.toFixed(2)}</div>
+                </div>
+            </div>
+        `).join('');
     }
-  } catch(e) { 
-      alert("❌ Network Error!");
-  }
-  btn.disabled = false; btn.textContent = '+ Backup';
+}
+
+// 🟢 ADMIN PROFIT WITHDRAWAL REQUEST 🟢
+async function submitAdminWithdraw() {
+    const amt = parseFloat(document.getElementById('adminWdAmount').value);
+    const method = document.getElementById('adminWdMethod').value;
+    const note = document.getElementById('adminWdNote').value.trim();
+
+    if (!amt || amt <= 0) return alert("Enter a valid amount");
+    if (!note) return alert("Enter wallet address or note details");
+    if (amt > globalAvailable) return alert("Insufficient Available Balance!");
+
+    const btn = event.target;
+    btn.disabled = true; btn.textContent = "Processing...";
+
+    const { data: { session } } = await newSupabase.auth.getSession();
+    
+    try {
+        const { error } = await newSupabase.from('withdrawals').insert({
+            owner_id: session.user.id,
+            amount: amt,
+            method: 'Profit', // Tagging it specifically as Profit
+            note: `[${method}] ${note}`,
+            status: 'pending' // Pending so it shows up in your list to "Mark Paid"
+        });
+
+        if (error) throw error;
+        
+        alert("Success! Admin Profit Withdrawal Requested.");
+        document.getElementById('adminWdAmount').value = '';
+        document.getElementById('adminWdNote').value = '';
+        loadData();
+    } catch(e) {
+        alert("❌ Error: " + e.message);
+    }
+    btn.disabled = false; btn.textContent = "Withdraw Profit";
 }
 
 function renderModelOverview() {
@@ -543,77 +569,6 @@ function renderModelOverview() {
   container.innerHTML = html;
 }
 
-function openCalcModal() {
-  document.getElementById('calcAvail').value = globalAvailable > 0 ? globalAvailable.toFixed(2) : '';
-  document.getElementById('calcRecv').value = '';
-  document.getElementById('calcSell').value = '';
-  document.getElementById('calcBuy').value = '';
-  doMath();
-  document.getElementById('calcModal').style.display = 'flex';
-}
-
-function closeCalcModal() { document.getElementById('calcModal').style.display = 'none'; }
-
-function doMath() {
-  const A = parseFloat(document.getElementById('calcAvail').value) || 0;
-  const R = parseFloat(document.getElementById('calcRecv').value) || 0;
-  const S = parseFloat(document.getElementById('calcSell').value) || 0;
-  const B = parseFloat(document.getElementById('calcBuy').value) || 0;
-
-  if (R === 0 || S === 0 || B === 0) {
-    document.getElementById('resTotalBDT').textContent = "৳0.00";
-    document.getElementById('resCostBDT').textContent = "-৳0.00";
-    document.getElementById('resTotalProfitBDT').textContent = "৳0.00";
-    document.getElementById('resAdminShareBDT').textContent = "+৳0.00";
-    document.getElementById('resFinalProfit').textContent = "$0.00";
-    finalCalculatedProfit = 0;
-    return;
-  }
-
-  const totalConvertedBDT = R * S;
-  const modelsCostBDT = A * B;
-  const totalProfitBDT = totalConvertedBDT - modelsCostBDT;
-  const adminShareBDT = totalProfitBDT / 2;
-  const netProfitUSD = adminShareBDT / S;
-  
-  finalCalculatedProfit = netProfitUSD;
-
-  const fmt = (num) => num.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-
-  document.getElementById('resTotalBDT').textContent = "৳" + fmt(totalConvertedBDT);
-  document.getElementById('resCostBDT').textContent = "-৳" + fmt(modelsCostBDT);
-  document.getElementById('resTotalProfitBDT').textContent = "৳" + fmt(totalProfitBDT);
-  document.getElementById('resAdminShareBDT').textContent = "+৳" + fmt(adminShareBDT);
-  document.getElementById('resFinalProfit').textContent = "$" + netProfitUSD.toFixed(6); 
-}
-
-async function saveCalculatedProfit() {
-  if (finalCalculatedProfit <= 0) return alert("Please calculate a valid profit first.");
-  
-  const btn = document.getElementById('saveProfitBtn');
-  btn.disabled = true; btn.textContent = 'Saving...';
-
-  try {
-    const res = await fetch(`${OLD_DB_URL}/rest/v1/rpc/admin_save_profit`, {
-      method: 'POST',
-      headers: { 'apikey': OLD_DB_KEY, 'Authorization': `Bearer ${OLD_DB_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ p_profit: finalCalculatedProfit, p_clear: 0, p_pass: sessionStorage.getItem('masterPass') })
-    });
-    if(res.ok) {
-      closeCalcModal();
-      loadData();
-      alert("Success! Master Profit saved.");
-    } else { 
-      const err = await res.json();
-      alert(`❌ Save Failed!\nReason: ${err.message || err.details}`); 
-    }
-  } catch(e) { 
-      alert("❌ Network Error!"); 
-  }
-  
-  btn.disabled = false; btn.textContent = 'Confirm & Save Profit';
-}
-
 async function toggleMark(invoiceId, currentStatus, btnElement) {
   const newStatus = !currentStatus;
   btnElement.disabled = true; btnElement.textContent = '...';
@@ -628,27 +583,16 @@ async function toggleMark(invoiceId, currentStatus, btnElement) {
   } catch(e) { btnElement.disabled = false; btnElement.textContent = 'Mark'; }
 }
 
-// 🟢 NEW DB: Mark Withdrawal Completed (SECURE RPC) 🟢
 async function completeWithdrawal(id, btnElement) {
   if(!confirm("Mark this as Completed?")) return;
   btnElement.disabled = true; btnElement.textContent = 'Processing...';
   
   try {
-    const res = await fetch(`${NEW_DB_URL}/rest/v1/rpc/complete_withdrawal`, {
-      method: 'POST',
-      headers: { 
-          'apikey': NEW_DB_KEY, 
-          'Authorization': `Bearer ${NEW_DB_KEY}`, 
-          'Content-Type': 'application/json' 
-      },
-      body: JSON.stringify({ p_id: id, p_pass: sessionStorage.getItem('masterPass') })
-    });
-    
-    if (res.ok) { 
+    const { error } = await newSupabase.from('withdrawals').update({ status: 'completed' }).eq('id', id);
+    if (!error) { 
         loadData(); 
     } else { 
-        const err = await res.json();
-        alert(`❌ Action Failed: ${err.message || "Unauthorized"}`);
+        alert(`❌ Action Failed: ${error.message}`);
         btnElement.disabled = false; 
         btnElement.textContent = 'Mark Paid'; 
     }
@@ -796,14 +740,11 @@ function renderWithdrawals() {
 
   tbody.innerHTML = allWithdrawals.map(w => {
     const isCompleted = w.status === 'completed';
-    const isProfit = w.source === 'Master Admin' && w.method === 'Profit';
-    const isSys = w.source === 'Master Admin' && w.method === 'System';
-    if(isSys) return ''; 
+    const isProfit = w.method === 'Profit';
     
-    // Check if w.owner_id is available and has an email properly populated (due to cross db complexity)
     let userEmail = 'Unknown User';
     if (w.owner_id && w.owner_id.email) userEmail = w.owner_id.email;
-    const model = isProfit ? 'MY PROFIT' : userEmail.toUpperCase();
+    const model = isProfit ? '👑 MASTER ADMIN' : userEmail.toUpperCase();
     
     const badgeClass = isProfit ? 'model-badge-profit' : 'model-badge';
     let methodStyle = '#00D632'; 
@@ -813,7 +754,7 @@ function renderWithdrawals() {
       <td><span class="${badgeClass}">${model}</span></td>
       <td style="font-weight:800;color:${isProfit ? '#00D632' : '#ff4d4d'};font-size:15px;">${isProfit ? '+' : '-'}$${parseFloat(w.amount||0).toFixed(2)}</td>
       <td>
-        <span style="background:${methodStyle}20; color:${methodStyle}; padding:3px 6px; border-radius:4px; font-size:10px; font-weight:bold;">${w.method || 'Bank'}</span>
+        <span style="background:${methodStyle}20; color:${methodStyle}; padding:3px 6px; border-radius:4px; font-size:10px; font-weight:bold;">${isProfit ? 'Profit' : w.method}</span>
         <span style="color:rgba(255,255,255,0.7); font-family:monospace; margin-left:6px;">${w.note || '-'}</span>
       </td>
       <td><span class="badge ${isCompleted ? 'completed' : 'pending'}"><span class="badge-dot"></span>${isCompleted ? (isProfit ? 'SAVED' : 'PAID') : 'Pending'}</span></td>
@@ -824,13 +765,11 @@ function renderWithdrawals() {
 
   mList.innerHTML = allWithdrawals.map(w => {
     const isCompleted = w.status === 'completed';
-    const isProfit = w.source === 'Master Admin' && w.method === 'Profit';
-    const isSys = w.source === 'Master Admin' && w.method === 'System';
-    if(isSys) return '';
+    const isProfit = w.method === 'Profit';
     
     let userEmail = 'Unknown User';
     if (w.owner_id && w.owner_id.email) userEmail = w.owner_id.email;
-    const model = isProfit ? 'MY PROFIT' : userEmail.toUpperCase();
+    const model = isProfit ? '👑 MASTER ADMIN' : userEmail.toUpperCase();
     
     const badgeClass = isProfit ? 'model-badge-profit' : 'model-badge';
     let methodStyle = '#00D632';
@@ -842,7 +781,7 @@ function renderWithdrawals() {
           <div style="margin-bottom:8px;"><span class="${badgeClass}">${model}</span></div>
           <div style="font-size:22px;font-weight:800;color:${isProfit ? '#00D632' : '#ff4d4d'};">${isProfit ? '+' : '-'}$${parseFloat(w.amount||0).toFixed(2)}</div>
           <div style="margin-top:6px;">
-            <span style="background:${methodStyle}20; color:${methodStyle}; padding:3px 6px; border-radius:4px; font-size:10px; font-weight:bold;">${w.method || 'Bank'}</span>
+            <span style="background:${methodStyle}20; color:${methodStyle}; padding:3px 6px; border-radius:4px; font-size:10px; font-weight:bold;">${isProfit ? 'Profit' : w.method}</span>
             <span style="color:rgba(255,255,255,0.6); font-size:12px; margin-left:6px;">${w.note || 'No note'}</span>
           </div>
           <div style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:8px;">${formatDateTime(w.created_at)}</div>
