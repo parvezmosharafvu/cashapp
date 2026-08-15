@@ -333,7 +333,6 @@ async function fetchPayments() {
   }
 }
 
-// 🟢 FIXED WITHDRAWAL FETCH TO NOT NEED PROFILE JOINS 🟢
 async function fetchWithdrawals() {
   const { data, error } = await window.newSupabase.from('withdrawals').select('*').eq('owner_id', currentUser.id).order('created_at', { ascending: false });
   if (!error && data) { allWithdrawals = data; calculateStats(); renderWithdrawals(); }
