@@ -281,14 +281,14 @@ tbody td { padding:14px 16px; font-size:13px; border-bottom:1px solid rgba(255,2
     </div>
   </div>
 </div>
-    
+
 <script>
-// 🟢 CROSS-DATABASE CONFIGURATION 🟢
+// 🟢 1. DATABASE CONFIGURATION (MUST BE AT THE TOP) 🟢
 const OLD_DB_URL = 'https://ymdhewjlbofmeuhahkbw.supabase.co';
 const OLD_DB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltZGhld2psYm9mbWV1aGFoa2J3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2NTgyNjcsImV4cCI6MjEwMDIzNDI2N30.1wuZwSTmmYn48U23bAnah2h-wDm-2hC4Omv_jUNic98';
 
-const NEW_SUPABASE_URL = 'https://wutuvhepaeugsmdgfpuc.supabase.co';
-const NEW_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind1dHV2aGVwYWV1Z3NtZGdmcHVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4MTcyMTIsImV4cCI6MjEwMjM5MzIxMn0.wEpY4wJuhUNiDNWWCN4JuXcF6WyfkOXBuX69RSRp4XM';
+const NEW_DB_URL = 'https://wutuvhepaeugsmdgfpuc.supabase.co';
+const NEW_DB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind1dHV2aGVwYWV1Z3NtZGdmcHVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY4MTcyMTIsImV4cCI6MjEwMjM5MzIxMn0.wEpY4wJuhUNiDNWWCN4JuXcF6WyfkOXBuX69RSRp4XM';
 
 const newSupabase = window.supabase.createClient(NEW_DB_URL, NEW_DB_KEY);
 
@@ -312,7 +312,7 @@ function extractModelName(urlStr) {
   return urlStr;
 }
 
-// 🟢 FIXED LOGIN FUNCTION 🟢
+// 🟢 2. FIXED LOGIN FUNCTION 🟢
 async function doLogin() {
   const email = document.getElementById('loginUser').value.trim();
   const p = document.getElementById('loginPass').value;
@@ -367,7 +367,7 @@ if (sessionStorage.getItem('masterAuth') === 'true') {
   setInterval(loadData, 30000); 
 }
 
-// 🟢 FETCH ALL DATA 🟢
+// 🟢 3. FETCH DATA 🟢
 async function loadData() {
   await Promise.all([fetchPayments(), fetchWithdrawals()]);
   calculateGlobalStats();
@@ -408,7 +408,7 @@ async function fetchWithdrawals() {
     while(keepFetching) {
       const { data, error } = await newSupabase
         .from('withdrawals')
-        .select('*, owner_id(email)')
+        .select('*, profiles(email)')
         .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1);
 
@@ -420,15 +420,10 @@ async function fetchWithdrawals() {
   } catch(e) { console.error(e); }
 }
 
-// 🟢 DYNAMIC GLOBAL STATS & DAILY REPORTS ENGINE (MAGIC SYNC) 🟢
 function getBusinessDate(dateStr) {
     const d = new Date(dateStr);
-    // Adjust to BD Time (UTC+6)
     const bdTime = new Date(d.toLocaleString("en-US", {timeZone: "Asia/Dhaka"}));
-    // If it's 5:00 PM (17:00) or later, it counts for tomorrow
-    if (bdTime.getHours() >= 17) {
-        bdTime.setDate(bdTime.getDate() + 1);
-    }
+    if (bdTime.getHours() >= 17) bdTime.setDate(bdTime.getDate() + 1);
     const year = bdTime.getFullYear();
     const month = String(bdTime.getMonth() + 1).padStart(2, '0');
     const day = String(bdTime.getDate()).padStart(2, '0');
@@ -455,7 +450,6 @@ function calculateGlobalStats() {
 
     allWithdrawals.forEach(w => {
         const amt = parseFloat(w.amount || 0);
-        // Include both pending and completed in total withdrawn to lock funds
         totalWithdrawn += amt;
         if (w.status === 'pending') pendingWDs++;
         
@@ -470,7 +464,6 @@ function calculateGlobalStats() {
     document.getElementById('statAvailable').textContent = '$' + Math.max(0, globalAvailable).toFixed(2);
     document.getElementById('statPendingWD').textContent = pendingWDs;
 
-    // 🟢 Generate Daily Reports Rows
     const sortedDates = Object.keys(dailyStats).sort();
     let cumulativeSettled = 0;
     let cumulativeWithdrawn = 0;
@@ -490,7 +483,7 @@ function calculateGlobalStats() {
         });
     });
 
-    finalReports.reverse(); // Newest first
+    finalReports.reverse();
 
     const drContainer = document.getElementById('dailyReportsContainer');
     if (finalReports.length === 0) {
@@ -511,7 +504,6 @@ function calculateGlobalStats() {
     }
 }
 
-// 🟢 ADMIN PROFIT WITHDRAWAL REQUEST 🟢
 async function submitAdminWithdraw() {
     const amt = parseFloat(document.getElementById('adminWdAmount').value);
     const method = document.getElementById('adminWdMethod').value;
@@ -530,9 +522,9 @@ async function submitAdminWithdraw() {
         const { error } = await newSupabase.from('withdrawals').insert({
             owner_id: session.user.id,
             amount: amt,
-            method: 'Profit', // Tagging it specifically as Profit
+            method: 'Profit',
             note: `[${method}] ${note}`,
-            status: 'pending' // Pending so it shows up in your list to "Mark Paid"
+            status: 'pending'
         });
 
         if (error) throw error;
@@ -749,7 +741,7 @@ function renderWithdrawals() {
     const isProfit = w.method === 'Profit';
     
     let userEmail = 'Unknown User';
-    if (w.owner_id && w.owner_id.email) userEmail = w.owner_id.email;
+    if (w.profiles && w.profiles.email) userEmail = w.profiles.email;
     const model = isProfit ? '👑 MASTER ADMIN' : userEmail.toUpperCase();
     
     const badgeClass = isProfit ? 'model-badge-profit' : 'model-badge';
@@ -774,7 +766,7 @@ function renderWithdrawals() {
     const isProfit = w.method === 'Profit';
     
     let userEmail = 'Unknown User';
-    if (w.owner_id && w.owner_id.email) userEmail = w.owner_id.email;
+    if (w.profiles && w.profiles.email) userEmail = w.profiles.email;
     const model = isProfit ? '👑 MASTER ADMIN' : userEmail.toUpperCase();
     
     const badgeClass = isProfit ? 'model-badge-profit' : 'model-badge';
