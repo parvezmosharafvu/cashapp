@@ -312,36 +312,42 @@ function extractModelName(urlStr) {
   return urlStr;
 }
 
-// 🟢 NEW DB: SUPABASE AUTH LOGIN 🟢
+// 🟢 FIXED LOGIN FUNCTION 🟢
 async function doLogin() {
   const email = document.getElementById('loginUser').value.trim();
   const p = document.getElementById('loginPass').value;
   const btn = document.querySelector('.login-btn');
+  const errBox = document.getElementById('loginError');
 
   if (!email || p === '') {
-    const err = document.getElementById('loginError');
-    err.textContent = "Please enter email and password";
-    err.style.display = 'block';
+    errBox.textContent = "Please enter email and password";
+    errBox.style.display = 'block';
     return;
   }
 
+  errBox.style.display = 'none';
   btn.textContent = "Checking...";
   btn.disabled = true;
 
-  const { data, error } = await newSupabase.auth.signInWithPassword({ email: email, password: p });
+  try {
+    const { data, error } = await newSupabase.auth.signInWithPassword({ email: email, password: p });
 
-  if (error) {
-    const err = document.getElementById('loginError');
-    err.textContent = "Access Denied: " + error.message;
-    err.style.display = 'block';
-  } else {
-    sessionStorage.setItem('masterAuth', 'true');
-    sessionStorage.setItem('masterPass', p); 
-    document.getElementById('loginPage').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
-    loadData();
-    startCountdownTick();
+    if (error) {
+      errBox.textContent = "Access Denied: " + error.message;
+      errBox.style.display = 'block';
+    } else {
+      sessionStorage.setItem('masterAuth', 'true');
+      sessionStorage.setItem('masterPass', p); 
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      loadData();
+      startCountdownTick();
+    }
+  } catch (err) {
+    errBox.textContent = "System Error: " + err.message;
+    errBox.style.display = 'block';
   }
+  
   btn.textContent = "Secure Login →";
   btn.disabled = false;
 }
