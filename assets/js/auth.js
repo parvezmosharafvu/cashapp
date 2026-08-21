@@ -73,6 +73,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 await window.newSupabase.from('profiles').upsert({ id: userId, full_name: name, email, status: 'active' });
 
                 const defaultModels = [
+                    { name: 'Alisha', slug: 'alisha' }, // ✅ Alisha মডেলটি যুক্ত করা হয়েছে
                     { name: 'Crystal', slug: 'Crystal' }, { name: 'Linda', slug: 'Linda' },
                     { name: 'LoveMe', slug: 'LoveMe' }, { name: 'Night Queen', slug: 'NightQueen' },
                     { name: 'Red Rose', slug: 'RedRose' }, { name: 'Rose', slug: 'Rose' },
